@@ -59,7 +59,7 @@ export async function createUser(email: string, password: string) {
 }
 
 export async function createGuestUser() {
-  const email = `guest-${Date.now()}`;
+  const email = `guest-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
   const password = generateHashedPassword(generateUUID());
 
   try {
