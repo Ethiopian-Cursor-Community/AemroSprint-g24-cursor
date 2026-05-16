@@ -86,7 +86,7 @@ See [`AI Student AemroSprint HackathonPlan.docx`](./AI%20Student%20AemroSprint%2
 ```bash
 pnpm install
 cp .env.example .env.local
-# Fill in POSTGRES_URL, AI_GATEWAY_API_KEY, AUTH_SECRET, etc.
+# Fill in POSTGRES_URL, GOOGLE_GENERATIVE_AI_API_KEY, AUTH_SECRET, etc.
 
 pnpm db:migrate
 pnpm dev
@@ -99,7 +99,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | Variable | Purpose |
 |----------|---------|
 | `AUTH_SECRET` | **Required.** Session encryption (NextAuth). Min 32 characters. [Generate one](https://generate-secret.vercel.app/32) |
-| `AI_GATEWAY_API_KEY` | AI models (non-Vercel deploys) |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | AI models (Gemini free tier) |
 | `POSTGRES_URL` | Chat, users, guest login |
 | `BLOB_READ_WRITE_TOKEN` | Image uploads in chat |
 | `REDIS_URL` | Optional — resumable streams |
@@ -121,7 +121,7 @@ You still need **`POSTGRES_URL`** in `.env.local` for guest login during tests.
 pnpm test
 ```
 
-**GitHub Actions:** Add repository secrets `AUTH_SECRET` and `POSTGRES_URL` (and optionally `AI_GATEWAY_API_KEY`). If `AUTH_SECRET` is missing in CI, the workflow applies a test-only fallback.
+**GitHub Actions:** Add repository secrets `AUTH_SECRET` and `POSTGRES_URL` (and optionally `GOOGLE_GENERATIVE_AI_API_KEY`). If `AUTH_SECRET` is missing in CI, the workflow applies a test-only fallback.
 
 ---
 
