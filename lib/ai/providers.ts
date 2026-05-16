@@ -3,10 +3,6 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { isTestEnvironment } from "../constants";
 import { titleModel } from "./models";
 
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-});
-
 export const myProvider = isTestEnvironment
   ? (() => {
       const { chatModel, titleModel } = require("./models.mock");
@@ -24,6 +20,10 @@ export function getLanguageModel(modelId: string) {
     return myProvider.languageModel(modelId);
   }
 
+  const google = createGoogleGenerativeAI({
+    apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+  });
+
   return google(modelId);
 }
 
@@ -31,5 +31,10 @@ export function getTitleModel() {
   if (isTestEnvironment && myProvider) {
     return myProvider.languageModel("title-model");
   }
+
+  const google = createGoogleGenerativeAI({
+    apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+  });
+
   return google(titleModel.id);
 }
