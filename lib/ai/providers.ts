@@ -1,7 +1,11 @@
 import { customProvider } from "ai";
-import { google } from "@ai-sdk/google";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { isTestEnvironment } from "../constants";
 import { titleModel } from "./models";
+
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+});
 
 export const myProvider = isTestEnvironment
   ? (() => {

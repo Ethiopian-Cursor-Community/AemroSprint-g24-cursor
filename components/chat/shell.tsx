@@ -86,30 +86,32 @@ export function ChatShell() {
           />
 
           <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background md:rounded-tl-[12px] md:border-t md:border-l md:border-border/40">
-            <Messages
-              addToolApprovalResponse={addToolApprovalResponse}
-              chatId={chatId}
-              isArtifactVisible={isArtifactVisible}
-              isLoading={isLoading}
-              isReadonly={isReadonly}
-              messages={messages}
-              onEditMessage={(msg) => {
-                const text = msg.parts
-                  ?.filter((p) => p.type === "text")
-                  .map((p) => p.text)
-                  .join("");
-                setInput(text ?? "");
-                setEditingMessage(msg);
-              }}
-              regenerate={regenerate}
-              selectedModelId={currentModelId}
-              setMessages={setMessages}
-              status={status}
-              votes={votes}
-            />
+            {messages.length > 0 || isLoading ? (
+              <Messages
+                addToolApprovalResponse={addToolApprovalResponse}
+                chatId={chatId}
+                isArtifactVisible={isArtifactVisible}
+                isLoading={isLoading}
+                isReadonly={isReadonly}
+                messages={messages}
+                onEditMessage={(msg) => {
+                  const text = msg.parts
+                    ?.filter((p) => p.type === "text")
+                    .map((p) => p.text)
+                    .join("");
+                  setInput(text ?? "");
+                  setEditingMessage(msg);
+                }}
+                regenerate={regenerate}
+                selectedModelId={currentModelId}
+                setMessages={setMessages}
+                status={status}
+                votes={votes}
+              />
+            ) : null}
 
             {messages.length === 0 && !isLoading ? (
-              <div className="min-h-0 flex-1 overflow-y-auto border-border/30 border-t">
+              <div className="min-h-0 flex-1 overflow-y-auto">
                 <StudyWorkspace />
               </div>
             ) : null}

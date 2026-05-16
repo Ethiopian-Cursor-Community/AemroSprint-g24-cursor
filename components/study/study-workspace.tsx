@@ -52,7 +52,7 @@ export function StudyWorkspace() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-2 py-8 md:px-4">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-2 py-4 md:px-4">
       <header className="text-center space-y-2">
         <div className="flex items-center justify-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
