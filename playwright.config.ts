@@ -1,17 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
+import { applyPlaywrightTestEnv } from "./tests/playwright-env";
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-import { config } from "dotenv";
-
-config({
-  path: ".env.local",
-});
+const playwrightEnv = applyPlaywrightTestEnv();
 
 /* Use process.env.PORT by default and fallback to port 3000 */
-const PORT = process.env.PORT || 3000;
+const PORT = playwrightEnv.PORT || process.env.PORT || 3000;
 
 /**
  * Set webServer.url and use.baseURL with the location
@@ -96,5 +89,6 @@ export default defineConfig({
     url: `${baseURL}/ping`,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
+    env: playwrightEnv,
   },
 });
