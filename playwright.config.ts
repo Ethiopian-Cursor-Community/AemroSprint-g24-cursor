@@ -1,16 +1,16 @@
 import { defineConfig, devices } from "@playwright/test";
 import { applyPlaywrightTestEnv } from "./tests/playwright-env";
 
-const playwrightEnv = applyPlaywrightTestEnv();
-
 /* Use process.env.PORT by default and fallback to port 3000 */
-const PORT = playwrightEnv.PORT || process.env.PORT || 3000;
+const PORT = process.env.PORT || "3000";
 
 /**
  * Set webServer.url and use.baseURL with the location
  * of the WebServer respecting the correct set port
  */
 const baseURL = `http://localhost:${PORT}`;
+
+const playwrightEnv = applyPlaywrightTestEnv({ authUrl: baseURL });
 
 /**
  * See https://playwright.dev/docs/test-configuration.

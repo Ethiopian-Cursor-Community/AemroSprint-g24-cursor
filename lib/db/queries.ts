@@ -18,6 +18,7 @@ import type { ArtifactKind } from "@/components/chat/artifact";
 import type { VisibilityType } from "@/components/chat/visibility-selector";
 import { ChatbotError } from "../errors";
 import { generateUUID } from "../utils";
+import { getPostgresConnectionString } from "./postgres-url";
 import {
   type Chat,
   chat,
@@ -33,7 +34,7 @@ import {
 } from "./schema";
 import { generateHashedPassword } from "./utils";
 
-const client = postgres(process.env.POSTGRES_URL ?? "");
+const client = postgres(getPostgresConnectionString());
 const db = drizzle(client);
 
 export async function getUser(email: string): Promise<User[]> {
