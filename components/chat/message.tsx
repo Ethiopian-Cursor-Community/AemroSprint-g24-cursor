@@ -127,10 +127,6 @@ const PurePreviewMessage = ({
       );
     }
 
-    if (type === "tool-getWeather") {
-      return null;
-    }
-
     if (type === "tool-createDocument") {
       const { toolCallId } = part;
 

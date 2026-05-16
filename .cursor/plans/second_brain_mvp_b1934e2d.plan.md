@@ -550,7 +550,7 @@ TASK 7 — sessionStorage persistence (hackathon nice-to-have)
 In use-study-context: on set summary/roadmap, persist to sessionStorage key 'second-brain-study'; hydrate on mount
 
 CONSTRAINTS
-- Do not delete getWeather tool or break existing chat tools
+- Do not delete or break existing chat tools
 - studyContext is optional — chat must work without it
 - No new database migrations
 - No console.log

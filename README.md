@@ -26,7 +26,7 @@ The starter is a **generic multi-model chatbot** with artifacts, image upload, a
 | Area | Original starter | Our implementation |
 |------|------------------|-------------------|
 | **Product / UX** | Generic “Chatbot” greeting & demo prompts | **Second Brain** branding, student-focused copy and suggested actions |
-| **Core features** | General chat + weather tool + document artifacts | **Study pipeline:** PDF/text upload → AI summary → study roadmap |
+| **Core features** | General chat + document artifacts | **Study pipeline:** PDF/text upload → AI summary → study roadmap |
 | **API routes** | Chat, history, files (images), documents | New `app/(chat)/api/study/upload`, `summarize`, `roadmap` with structured JSON |
 | **Data / types** | Chat messages only | `lib/study/types.ts` — Zod schemas for summaries, roadmaps, quizzes, emergency plans |
 | **Client state** | Chat hooks only | `hooks/use-study-context.tsx` — study session state across UI |
