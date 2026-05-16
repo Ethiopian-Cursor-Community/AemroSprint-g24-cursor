@@ -33,9 +33,9 @@ test.describe("Model Selector", () => {
     await modelButton.click();
 
     const searchInput = page.getByPlaceholder("Search models...");
-    await searchInput.fill("Gemini 1.5 Pro");
+    await searchInput.fill("Gemini 2.5 Pro");
 
-    await expect(page.getByText("Gemini 1.5 Pro").first()).toBeVisible();
+    await expect(page.getByText("Gemini 2.5 Pro").first()).toBeVisible();
   });
 
   test("can close model selector by clicking outside", async ({ page }) => {
@@ -59,8 +59,8 @@ test.describe("Model Selector", () => {
       .first();
     await modelButton.click();
 
-    await expect(page.getByRole("option", { name: /Gemini 1\.5 Flash/i }).first()).toBeVisible();
-    await expect(page.getByRole("option", { name: /Gemini 1\.5 Pro/i }).first()).toBeVisible();
+    await expect(page.getByRole("option", { name: /Gemini 2\.5 Flash/i }).first()).toBeVisible();
+    await expect(page.getByRole("option", { name: /Gemini 2\.5 Pro/i }).first()).toBeVisible();
   });
 
   test("can select a different model", async ({ page }) => {
@@ -70,12 +70,12 @@ test.describe("Model Selector", () => {
       .first();
     await modelButton.click();
 
-    await page.getByText("Gemini 1.5 Pro").first().click();
+    await page.getByText("Gemini 2.5 Pro").first().click();
 
     await expect(page.getByPlaceholder("Search models...")).not.toBeVisible();
 
     await expect(
-      page.locator("button").filter({ hasText: "Gemini 1.5 Pro" }).first()
+      page.locator("button").filter({ hasText: "Gemini 2.5 Pro" }).first()
     ).toBeVisible();
   });
 });

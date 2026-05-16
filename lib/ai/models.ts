@@ -1,8 +1,8 @@
-export const DEFAULT_CHAT_MODEL = "gemini-1.5-flash";
+export const DEFAULT_CHAT_MODEL = "gemini-2.5-flash";
 
 export const titleModel = {
-  id: "gemini-1.5-flash",
-  name: "Gemini 1.5 Flash",
+  id: "gemini-2.5-flash",
+  name: "Gemini 2.5 Flash",
   provider: "google",
   description: "Fast model for title generation",
 };
@@ -23,22 +23,28 @@ export type ChatModel = {
 
 export const chatModels: ChatModel[] = [
   {
-    id: "gemini-1.5-flash",
-    name: "Gemini 1.5 Flash",
+    id: "gemini-2.5-flash",
+    name: "Gemini 2.5 Flash",
     provider: "google",
-    description: "Extremely fast with 1M context (Best for long notes)",
+    description: "Extremely fast next-gen model with huge context (Ideal for study materials)",
   },
   {
-    id: "gemini-1.5-pro",
-    name: "Gemini 1.5 Pro",
+    id: "gemini-2.5-pro",
+    name: "Gemini 2.5 Pro",
     provider: "google",
-    description: "Most intelligent model for complex reasoning",
+    description: "State-of-the-art model for complex logic and deep analysis",
   },
   {
-    id: "gemini-2.0-flash-exp",
-    name: "Gemini 2.0 Flash (Exp)",
+    id: "gemini-2.0-flash",
+    name: "Gemini 2.0 Flash",
     provider: "google",
-    description: "Next-gen experimental flash model",
+    description: "Highly responsive model for real-time study help",
+  },
+  {
+    id: "gemini-3-flash-preview",
+    name: "Gemini 3 Flash (Preview)",
+    provider: "google",
+    description: "Latest experimental model for cutting-edge capabilities",
   },
 ];
 
@@ -50,8 +56,8 @@ export async function getCapabilities(): Promise<
       model.id,
       {
         tools: true,
-        vision: model.id.includes("vision"),
-        reasoning: model.id.includes("reasoning"),
+        vision: true,
+        reasoning: model.id.includes("pro") || model.id.includes("3"),
       },
     ])
   );
