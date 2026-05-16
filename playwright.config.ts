@@ -8,7 +8,7 @@ const PORT = process.env.PORT || "3000";
  * Set webServer.url and use.baseURL with the location
  * of the WebServer respecting the correct set port
  */
-const baseURL = `http://localhost:${PORT}`;
+const baseURL = `http://127.0.0.1:${PORT}`;
 
 const playwrightEnv = applyPlaywrightTestEnv({ authUrl: baseURL });
 

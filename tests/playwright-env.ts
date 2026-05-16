@@ -23,7 +23,7 @@ export function applyPlaywrightTestEnv(options?: {
 
   const port = process.env.PORT ?? "3000";
   const authUrl =
-    options?.authUrl ?? process.env.AUTH_URL ?? `http://localhost:${port}`;
+    options?.authUrl ?? process.env.AUTH_URL ?? `http://127.0.0.1:${port}`;
   process.env.AUTH_URL = authUrl;
 
   return {
