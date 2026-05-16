@@ -22,7 +22,6 @@ export function getLanguageModel(modelId: string) {
 
   const google = createGoogleGenerativeAI({
     apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-    baseURL: "https://generativelanguage.googleapis.com/v1",
   });
 
   return google(modelId);
@@ -35,7 +34,6 @@ export function getTitleModel() {
 
   const google = createGoogleGenerativeAI({
     apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-    baseURL: "https://generativelanguage.googleapis.com/v1",
   });
 
   return google(titleModel.id);
