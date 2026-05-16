@@ -27,7 +27,8 @@ export function Preview() {
             Study smarter before your next exam
           </h2>
           <p className="mt-1.5 text-muted-foreground text-sm">
-            Upload course material, get summaries and roadmaps, then quiz yourself.
+            Upload course material, get summaries and roadmaps, then quiz
+            yourself.
           </p>
         </div>
 

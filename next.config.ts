@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  serverExternalPackages: ["pdf-parse"],
   experimental: {
     prefetchInlining: true,
     cachedNavigations: true,

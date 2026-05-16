@@ -4,7 +4,8 @@ const mockResponses: Record<string, string> = {
   default: "This is a mock response for testing.",
   study:
     "Based on your course material, focus on the highest-weight topics first and block 45-minute study sessions with a short review at the end.",
-  greeting: "Hello! Upload your syllabus or notes and I will help you study smarter.",
+  greeting:
+    "Hello! Upload your syllabus or notes and I will help you study smarter.",
 };
 
 const mockUsage = {

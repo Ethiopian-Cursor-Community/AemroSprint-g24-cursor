@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { StudyWorkspace } from "@/components/study/study-workspace";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -107,7 +108,18 @@ export function ChatShell() {
               votes={votes}
             />
 
-            <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
+            {messages.length === 0 && !isLoading ? (
+              <div className="min-h-0 flex-1 overflow-y-auto border-border/30 border-t">
+                <StudyWorkspace />
+              </div>
+            ) : null}
+
+            <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl flex-col gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
+              {messages.length === 0 && !isLoading ? (
+                <p className="text-center text-muted-foreground text-xs">
+                  Ask anything about your material below
+                </p>
+              ) : null}
               {!isReadonly && (
                 <MultimodalInput
                   attachments={attachments}

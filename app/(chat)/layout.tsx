@@ -7,6 +7,7 @@ import { DataStreamProvider } from "@/components/chat/data-stream-provider";
 import { ChatShell } from "@/components/chat/shell";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ActiveChatProvider } from "@/hooks/use-active-chat";
+import { StudyProvider } from "@/hooks/use-study-context";
 import { auth } from "../(auth)/auth";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -42,9 +43,11 @@ async function SidebarShell({ children }: { children: React.ReactNode }) {
           }}
         />
         <Suspense fallback={<div className="flex h-dvh" />}>
-          <ActiveChatProvider>
-            <ChatShell />
-          </ActiveChatProvider>
+          <StudyProvider>
+            <ActiveChatProvider>
+              <ChatShell />
+            </ActiveChatProvider>
+          </StudyProvider>
         </Suspense>
         {children}
       </SidebarInset>

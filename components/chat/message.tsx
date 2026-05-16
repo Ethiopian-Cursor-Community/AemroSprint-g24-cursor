@@ -21,7 +21,7 @@ import { MessageReasoning } from "./message-reasoning";
 import { PreviewAttachment } from "./preview-attachment";
 
 const PurePreviewMessage = ({
-  addToolApprovalResponse,
+  addToolApprovalResponse: _addToolApprovalResponse,
   chatId,
   message,
   vote,
@@ -130,7 +130,6 @@ const PurePreviewMessage = ({
     if (type === "tool-getWeather") {
       return null;
     }
-
 
     if (type === "tool-createDocument") {
       const { toolCallId } = part;
