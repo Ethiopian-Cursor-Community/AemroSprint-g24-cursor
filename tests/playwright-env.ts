@@ -8,9 +8,7 @@ config({ path: ".env.test" });
 const PLAYWRIGHT_AUTH_SECRET_FALLBACK =
   "playwright-test-auth-secret-at-least-32-characters";
 
-export function applyPlaywrightTestEnv(options?: {
-  authUrl?: string;
-}): Record<string, string> {
+export function applyPlaywrightTestEnv(options?: { authUrl?: string }) {
   process.env.PLAYWRIGHT = "True";
 
   if (!process.env.AUTH_SECRET) {
@@ -22,9 +20,11 @@ export function applyPlaywrightTestEnv(options?: {
   }
 
   const port = process.env.PORT ?? "3000";
-  const authUrl =
-    options?.authUrl ?? process.env.AUTH_URL ?? `http://127.0.0.1:${port}`;
+  const authUrl = options?.authUrl ?? process.env.AUTH_URL ?? `http://127.0.0.1:${port}`;
   process.env.AUTH_URL = authUrl;
+
+  // <‑‑ NEW: expose the full NextAuth endpoint
+  process.env.NEXTAUTH_URL = `${authUrl}/api/auth`;
 
   return {
     ...Object.fromEntries(
@@ -35,6 +35,7 @@ export function applyPlaywrightTestEnv(options?: {
     PLAYWRIGHT: "True",
     AUTH_SECRET: process.env.AUTH_SECRET,
     AUTH_URL: authUrl,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     ...(process.env.POSTGRES_URL
       ? { POSTGRES_URL: process.env.POSTGRES_URL }
       : {}),

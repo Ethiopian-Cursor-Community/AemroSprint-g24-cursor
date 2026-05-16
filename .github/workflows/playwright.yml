@@ -70,6 +70,7 @@ jobs:
             echo "AUTH_SECRET=playwright-ci-auth-secret-at-least-32-characters" >> "$GITHUB_ENV"
           fi
           echo "AUTH_URL=http://127.0.0.1:3000" >> "$GITHUB_ENV"
+          echo "NEXTAUTH_URL=http://127.0.0.1:3000/api/auth" >> "$GITHUB_ENV"
 
       - name: Run database migrations
         run: pnpm db:migrate
