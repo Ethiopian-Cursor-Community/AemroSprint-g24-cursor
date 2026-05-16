@@ -59,8 +59,8 @@ test.describe("Model Selector", () => {
       .first();
     await modelButton.click();
 
-    await expect(page.getByText("Mistral")).toBeVisible();
-    await expect(page.getByText("Moonshot")).toBeVisible();
+    await expect(page.getByRole("option", { name: /Mistral/i }).first()).toBeVisible();
+    await expect(page.getByRole("option", { name: /Kimi K2\.5/i })).toBeVisible();
   });
 
   test("can select a different model", async ({ page }) => {
