@@ -2,8 +2,9 @@ import type { LanguageModel } from "ai";
 
 const mockResponses: Record<string, string> = {
   default: "This is a mock response for testing.",
-  weather: "The weather in San Francisco is sunny and 72°F.",
-  greeting: "Hello! How can I help you today?",
+  study:
+    "Based on your course material, focus on the highest-weight topics first and block 45-minute study sessions with a short review at the end.",
+  greeting: "Hello! Upload your syllabus or notes and I will help you study smarter.",
 };
 
 const mockUsage = {
@@ -14,8 +15,12 @@ const mockUsage = {
 function getResponseForPrompt(prompt: unknown): string {
   const promptStr = JSON.stringify(prompt).toLowerCase();
 
-  if (promptStr.includes("weather") || promptStr.includes("temperature")) {
-    return mockResponses.weather;
+  if (
+    promptStr.includes("syllabus") ||
+    promptStr.includes("exam") ||
+    promptStr.includes("study")
+  ) {
+    return mockResponses.study;
   }
   if (
     promptStr.includes("hello") ||
