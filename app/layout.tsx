@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
   ),
-  title: "Second Brain",
+  title: "AemroSprint",
   description:
     "AI academic survival assistant — syllabus summaries, study roadmaps, quizzes, and exam cram mode.",
 };
@@ -31,8 +31,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
-const LIGHT_THEME_COLOR = "hsl(0 0% 100%)";
-const DARK_THEME_COLOR = "hsl(240deg 10% 3.92%)";
+const LIGHT_THEME_COLOR = "#151b2e";
+const DARK_THEME_COLOR = "#0f131f";
 const THEME_COLOR_SCRIPT = `\
 (function() {
   var html = document.documentElement;

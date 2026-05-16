@@ -1,6 +1,6 @@
-# Second Brain
+# AemroSprint
 
-**AI Student Second Brain** — an AI-powered academic survival assistant built for the Cursor Hackathon.
+**AI Student AemroSprint** — an AI-powered academic survival assistant built for the Cursor Hackathon.
 
 Turn syllabi and lecture notes into summaries, study roadmaps, quizzes, and last-minute exam cram plans — then ask follow-up questions in chat grounded in your material.
 
@@ -17,15 +17,15 @@ This app is **based on** the open-source **[Vercel AI Chatbot](https://github.co
 - **Original repository:** https://github.com/vercel/ai-chatbot  
 - **License:** See [LICENSE](./LICENSE) (starter terms apply to upstream code we retained).
 
-We did **not** use GitHub’s “Fork” button. We copied the starter into our own repository [`AemroSprint-cursor`](https://github.com/niyatberhe/AemroSprint-cursor) and developed **Second Brain** there.
+We did **not** use GitHub’s “Fork” button. We copied the starter into our own repository [`AemroSprint-cursor`](https://github.com/niyatberhe/AemroSprint-cursor) and developed **AemroSprint** there.
 
 ### What we implemented (our work vs. the starter)
 
-The starter is a **generic multi-model chatbot** with artifacts, image upload, and chat history. **Our hackathon contribution** is the academic “Second Brain” product layer:
+The starter is a **generic multi-model chatbot** with artifacts, image upload, and chat history. **Our hackathon contribution** is the academic “AemroSprint” product layer:
 
 | Area | Original starter | Our implementation |
 |------|------------------|-------------------|
-| **Product / UX** | Generic “Chatbot” greeting & demo prompts | **Second Brain** branding, student-focused copy and suggested actions |
+| **Product / UX** | Generic “Chatbot” greeting & demo prompts | **AemroSprint** branding, student-focused copy and suggested actions |
 | **Core features** | General chat + document artifacts | **Study pipeline:** PDF/text upload → AI summary → study roadmap |
 | **API routes** | Chat, history, files (images), documents | New `app/(chat)/api/study/upload`, `summarize`, `roadmap` with structured JSON |
 | **Data / types** | Chat messages only | `lib/study/types.ts` — Zod schemas for summaries, roadmaps, quizzes, emergency plans |
@@ -39,7 +39,7 @@ The starter is a **generic multi-model chatbot** with artifacts, image upload, a
 
 - `lib/study/`, `components/study/`, `hooks/use-study-context.tsx`
 - `app/(chat)/api/study/**`
-- `AI Student SecondBrain HackathonPlan.docx`, `.cursor/plans/second_brain_mvp_b1934e2d.plan.md`
+- `AI Student AemroSprint HackathonPlan.docx`, `.cursor/plans/aemrosprint_mvp_b1934e2d.plan.md`
 - Rewritten [`README.md`](./README.md) (this file)
 
 **Files we kept from the starter (infrastructure):** auth, database schema, chat streaming, sidebar, shadcn components, artifact panel — extended where needed, not replaced.
@@ -58,7 +58,7 @@ The starter is a **generic multi-model chatbot** with artifacts, image upload, a
 | Chat grounded in uploaded material | Planned |
 | Try Demo (offline fallback data) | Planned |
 
-See [`AI Student SecondBrain HackathonPlan.docx`](./AI%20Student%20SecondBrain%20HackathonPlan.docx) for the full execution plan.
+See [`AI Student AemroSprint HackathonPlan.docx`](./AI%20Student%20AemroSprint%20HackathonPlan.docx) for the full execution plan.
 
 ---
 
@@ -146,7 +146,7 @@ lib/
 
 1. Branch from `main` or `dev`: `feat/member-N-description`
 2. Merge order: foundation → quiz/emergency UI → chat/demo polish
-3. Details: [`.cursor/plans/second_brain_mvp_b1934e2d.plan.md`](.cursor/plans/second_brain_mvp_b1934e2d.plan.md)
+3. Details: [`.cursor/plans/aemrosprint_mvp_b1934e2d.plan.md`](.cursor/plans/aemrosprint_mvp_b1934e2d.plan.md)
 
 ---
 

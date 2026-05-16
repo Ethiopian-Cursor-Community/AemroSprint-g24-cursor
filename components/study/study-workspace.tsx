@@ -52,31 +52,35 @@ export function StudyWorkspace() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-2 py-4 md:px-4">
-      <header className="text-center">
-        <div className="mb-2 flex items-center justify-center gap-2">
-          <BrainIcon className="size-6 text-indigo-500" />
-          <h2 className="font-semibold text-xl tracking-tight md:text-2xl">
-            Second Brain
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-2 py-8 md:px-4">
+      <header className="text-center space-y-2">
+        <div className="flex items-center justify-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+            <BrainIcon className="size-6" />
+          </div>
+          <h2 className="font-bold text-2xl tracking-tight md:text-3xl bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+            AemroSprint
           </h2>
         </div>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
           Your AI academic survival system — upload, plan, and cram smarter.
         </p>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-6 md:grid-cols-2">
         <div
           {...getRootProps()}
-          className={`flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 transition-colors ${
+          className={`flex min-h-[160px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 transition-all duration-300 ${
             isDragActive
-              ? "border-indigo-500 bg-indigo-500/5"
-              : "border-border/60 bg-card/30 hover:border-indigo-400/50"
+              ? "border-primary bg-primary/10 scale-[1.01]"
+              : "border-border/40 bg-card/40 backdrop-blur-sm hover:border-primary/40 hover:bg-card/60"
           }`}
         >
           <input {...getInputProps()} />
-          <FileUpIcon className="mb-2 size-8 text-muted-foreground" />
-          <p className="font-medium text-sm">
+          <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-muted/50 text-muted-foreground group-hover:text-primary transition-colors">
+            <FileUpIcon className="size-6" />
+          </div>
+          <p className="font-semibold text-sm">
             {pendingFile?.name ?? fileName ?? "Drop syllabus PDF here"}
           </p>
           <p className="mt-1 text-muted-foreground text-xs">
@@ -84,10 +88,10 @@ export function StudyWorkspace() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="syllabus-text">Or paste syllabus text</Label>
+        <div className="flex flex-col gap-2.5">
+          <Label className="text-sm font-medium pl-1" htmlFor="syllabus-text">Or paste syllabus text</Label>
           <Textarea
-            className="min-h-[140px] resize-none"
+            className="min-h-[160px] resize-none bg-card/40 backdrop-blur-sm border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all rounded-2xl"
             id="syllabus-text"
             onChange={(e) => setPastedText(e.target.value)}
             placeholder="Paste course outline, deadlines, topics..."
@@ -96,21 +100,21 @@ export function StudyWorkspace() {
         </div>
       </section>
 
-      <section className="flex flex-wrap items-end gap-3">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="exam-date">Exam date</Label>
+      <section className="flex flex-wrap items-end gap-4 p-6 rounded-2xl bg-secondary/30 border border-border/40 backdrop-blur-sm">
+        <div className="flex flex-col gap-2">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" htmlFor="exam-date">Exam date</Label>
           <Input
-            className="w-[180px]"
+            className="w-full md:w-[200px] bg-background/50 border-border/40 focus:border-primary/50 rounded-xl"
             id="exam-date"
             onChange={(e) => setExamDate(e.target.value)}
             type="date"
             value={examDate}
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="hours-per-day">Hours / day</Label>
+        <div className="flex flex-col gap-2">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" htmlFor="hours-per-day">Hours / day</Label>
           <Input
-            className="w-[100px]"
+            className="w-full md:w-[120px] bg-background/50 border-border/40 focus:border-primary/50 rounded-xl"
             id="hours-per-day"
             max={16}
             min={1}
@@ -119,36 +123,46 @@ export function StudyWorkspace() {
             value={hoursPerDay}
           />
         </div>
-        <Button
-          disabled={isLoading}
-          onClick={handleAnalyze}
-          type="button"
-          variant="default"
-        >
-          {loadingStep === "upload" || loadingStep === "summary"
-            ? "Analyzing..."
-            : "Analyze Material"}
-        </Button>
-        <Button
-          disabled={isLoading || !summary}
-          onClick={() => generateRoadmap()}
-          type="button"
-          variant="secondary"
-        >
-          {loadingStep === "roadmap" ? "Planning..." : "Generate Roadmap"}
-        </Button>
+        <div className="flex flex-1 gap-3">
+          <Button
+            className="flex-1 font-semibold rounded-xl h-11 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            disabled={isLoading}
+            onClick={handleAnalyze}
+            type="button"
+            variant="default"
+          >
+            {loadingStep === "upload" || loadingStep === "summary"
+              ? "Analyzing..."
+              : "Analyze Material"}
+          </Button>
+          <Button
+            className="flex-1 font-semibold rounded-xl h-11 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            disabled={isLoading || !summary}
+            onClick={() => generateRoadmap()}
+            type="button"
+            variant="secondary"
+          >
+            {loadingStep === "roadmap" ? "Planning..." : "Generate Roadmap"}
+          </Button>
+        </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <div>
-          <h3 className="mb-2 font-medium text-sm">Summary</h3>
+      <section className="grid gap-8 md:grid-cols-2">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 pl-1">
+            <div className="size-1.5 rounded-full bg-primary" />
+            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Summary</h3>
+          </div>
           <SummaryCard
             isLoading={loadingStep === "summary"}
             summary={summary}
           />
         </div>
-        <div>
-          <h3 className="mb-2 font-medium text-sm">Roadmap</h3>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 pl-1">
+            <div className="size-1.5 rounded-full bg-primary" />
+            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Roadmap</h3>
+          </div>
           <RoadmapView days={roadmap} isLoading={loadingStep === "roadmap"} />
         </div>
       </section>

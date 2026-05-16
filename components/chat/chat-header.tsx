@@ -22,9 +22,9 @@ function PureChatHeader({
   }
 
   return (
-    <header className="sticky top-0 flex h-14 items-center gap-2 bg-sidebar px-3">
+    <header className="sticky top-0 flex h-14 items-center gap-2 bg-sidebar/80 backdrop-blur-md px-3 border-b border-border/5 z-20">
       <Button
-        className="md:hidden"
+        className="md:hidden hover:bg-primary/10 hover:text-primary transition-colors"
         onClick={toggleSidebar}
         size="icon-sm"
         type="button"
@@ -34,8 +34,8 @@ function PureChatHeader({
       </Button>
 
       <div className="flex items-center gap-2 md:hidden">
-        <BrainIcon className="size-4 text-indigo-500" />
-        <span className="font-medium text-sm">Second Brain</span>
+        <BrainIcon className="size-4 text-primary shadow-glow" />
+        <span className="font-bold text-sm tracking-tight">AemroSprint</span>
       </div>
 
       {!isReadonly && (
@@ -46,9 +46,9 @@ function PureChatHeader({
       )}
 
       <div className="hidden items-center gap-2 md:ml-auto md:flex">
-        <BrainIcon className="size-4 text-indigo-500" />
-        <span className="font-medium text-muted-foreground text-sm">
-          Second Brain
+        <BrainIcon className="size-4 text-primary" />
+        <span className="font-semibold text-muted-foreground/80 text-xs uppercase tracking-widest">
+          AemroSprint
         </span>
       </div>
     </header>

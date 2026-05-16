@@ -1,6 +1,6 @@
 ---
-name: Second Brain MVP
-overview: Transform the copied Vercel AI Chatbot starter into "Second Brain" by adding a study workspace (upload → summary → roadmap → quiz → panic mode), dedicated study API routes with structured JSON outputs, demo fallbacks, and chat grounded in uploaded material—without restructuring the App Router or adding vector DB/LangChain.
+name: AemroSprint MVP
+overview: Transform the copied Vercel AI Chatbot starter into "AemroSprint" by adding a study workspace (upload → summary → roadmap → quiz → panic mode), dedicated study API routes with structured JSON outputs, demo fallbacks, and chat grounded in uploaded material—without restructuring the App Router or adding vector DB/LangChain.
 todos:
   - id: deps-upload
     content: Add pdf-parse + react-dropzone; implement POST app/(chat)/api/study/upload with auth
@@ -23,9 +23,9 @@ todos:
 isProject: false
 ---
 
-# AI Student Second Brain — Implementation Plan
+# AI Student AemroSprint — Implementation Plan
 
-Source of truth: [`AI Student SecondBrain HackathonPlan.docx`](c:\Users\hp\Cursor-hack\Aemro-Sprint\AI Student SecondBrain HackathonPlan.docx) (repo root).
+Source of truth: [`AI Student AemroSprint HackathonPlan.docx`](c:\Users\hp\Cursor-hack\Aemro-Sprint\AI Student AemroSprint HackathonPlan.docx) (repo root).
 
 Your setup already matches the doc’s recommended starter (Vercel AI Chatbot copied into this repo). **Do not re-fork or re-init git.** Build on what exists.
 
@@ -86,7 +86,7 @@ No Pinecone, LangChain, Docker, or Python backend.
 | P0 | Study roadmap | `POST /api/study/roadmap` → day-by-day plan array |
 | P1 | Quiz / flashcards | `POST /api/study/quiz` + `QuizCard` / `QuizSession` components |
 | P1 | Emergency Exam Mode | `POST /api/study/emergency` + red “Panic Mode” UI |
-| P2 | Chat on your material | Extend chat schema + [`lib/ai/prompts.ts`](lib/ai/prompts.ts) with `secondBrainPrompt` + client context |
+| P2 | Chat on your material | Extend chat schema + [`lib/ai/prompts.ts`](lib/ai/prompts.ts) with `AemroSprintPrompt` + client context |
 
 **Stretch (only after MVP is polished):** weak-topic analysis, adaptive roadmap, export PDF, progress tracker (doc §5).
 
@@ -134,14 +134,14 @@ No Pinecone, LangChain, Docker, or Python backend.
 |------|--------|
 | [`package.json`](package.json) | Add `pdf-parse`, `react-dropzone`; types `@types/pdf-parse` if needed |
 | [`components/chat/shell.tsx`](components/chat/shell.tsx) | Render `StudyWorkspace` when no messages; show chat below after first message or via compact “Ask about material” CTA |
-| [`components/chat/greeting.tsx`](components/chat/greeting.tsx) | Rebrand copy: “Second Brain”, student tagline |
+| [`components/chat/greeting.tsx`](components/chat/greeting.tsx) | Rebrand copy: “AemroSprint”, student tagline |
 | [`lib/constants.ts`](lib/constants.ts) | Replace generic [`suggestions`](lib/constants.ts) with study prompts (e.g. “Explain week 3 topics”, “What should I study tonight?”) |
-| [`lib/ai/prompts.ts`](lib/ai/prompts.ts) | Add `secondBrainPrompt`; append uploaded summary + excerpt to `systemPrompt` when `studyContext` present |
+| [`lib/ai/prompts.ts`](lib/ai/prompts.ts) | Add `AemroSprintPrompt`; append uploaded summary + excerpt to `systemPrompt` when `studyContext` present |
 | [`app/(chat)/api/chat/schema.ts`](app/(chat)/api/chat/schema.ts) | Optional `studyContext: z.string().max(8000).optional()` |
 | [`app/(chat)/api/chat/route.ts`](app/(chat)/api/chat/route.ts) | Pass `studyContext` into `systemPrompt` |
 | [`hooks/use-active-chat.tsx`](hooks/use-active-chat.tsx) | Send `studyContext` in transport body from `useStudyContext()` |
-| [`app/layout.tsx`](app/layout.tsx) | Title/description: “Second Brain” |
-| [`components/chat/app-sidebar.tsx`](components/chat/app-sidebar.tsx) | Logo label “Second Brain” (tooltip/link text) |
+| [`app/layout.tsx`](app/layout.tsx) | Title/description: “AemroSprint” |
+| [`components/chat/app-sidebar.tsx`](components/chat/app-sidebar.tsx) | Logo label “AemroSprint” (tooltip/link text) |
 | [`app/globals.css`](app/globals.css) | Light indigo/violet accent tokens if needed for demo polish (doc Prompt 6) |
 
 **Leave unchanged unless broken:** `components/ui/*`, auth flow, Drizzle migrations, artifact tools, Playwright tests (update later if selectors change).
@@ -278,7 +278,7 @@ git push origin feat/member-N-short-name
 
 ```
 CONTEXT
-We are building "Second Brain" — an AI academic survival app on top of the Vercel AI Chatbot starter (Next.js App Router, already in this repo). Do NOT restructure the app, add vector DBs, LangChain, or Docker.
+We are building "AemroSprint" — an AI academic survival app on top of the Vercel AI Chatbot starter (Next.js App Router, already in this repo). Do NOT restructure the app, add vector DBs, LangChain, or Docker.
 
 YOUR SCOPE (Member 1 only — do not build quiz, emergency, chat grounding, or full rebrand):
 1. Shared types
@@ -337,7 +337,7 @@ app/(chat)/api/study/roadmap/route.ts
 TASK 5 — UI components (components/study/)
 
 study-workspace.tsx
-- Hero: "Second Brain" + tagline "Your AI academic survival system"
+- Hero: "AemroSprint" + tagline "Your AI academic survival system"
 - react-dropzone upload card + textarea "Or paste syllabus text"
 - Inputs: exam date (type=date), hours per day (number)
 - Buttons: "Analyze Material" (chains upload/paste → summarize), "Generate Roadmap"
@@ -387,7 +387,7 @@ WHEN DONE
 
 ```
 CONTEXT
-Second Brain hackathon app on Vercel AI Chatbot starter. Member 1 built: lib/study/types.ts, hooks/use-study-context.tsx, study upload/summarize/roadmap APIs, components/study/study-workspace.tsx (partial).
+AemroSprint hackathon app on Vercel AI Chatbot starter. Member 1 built: lib/study/types.ts, hooks/use-study-context.tsx, study upload/summarize/roadmap APIs, components/study/study-workspace.tsx (partial).
 
 YOUR SCOPE (Member 2 only):
 1. Quiz + Emergency API routes
@@ -482,7 +482,7 @@ WHEN DONE
 
 ```
 CONTEXT
-Second Brain hackathon on Vercel AI Chatbot starter. Member 1: study APIs + context + workspace shell. Member 2: quiz/emergency APIs + UI components.
+AemroSprint hackathon on Vercel AI Chatbot starter. Member 1: study APIs + context + workspace shell. Member 2: quiz/emergency APIs + UI components.
 
 YOUR SCOPE (Member 3 only):
 1. lib/demo-data.ts + Try Demo in study workspace
@@ -525,18 +525,18 @@ app/(chat)/api/chat/route.ts
 - Pass to systemPrompt({ requestHints, supportsTools, studyContext })
 
 lib/ai/prompts.ts
-- Add secondBrainPrompt constant: student academic co-pilot, answers MUST use provided course material, cite topics/deadlines when relevant, if no material say so
-- Update systemPrompt to append secondBrainPrompt + studyContext when present
+- Add AemroSprintPrompt constant: student academic co-pilot, answers MUST use provided course material, cite topics/deadlines when relevant, if no material say so
+- Update systemPrompt to append AemroSprintPrompt + studyContext when present
 
 hooks/use-active-chat.tsx
 - Import useStudyContext
 - Include studyContext: buildStudyContextString() in DefaultChatTransport body when non-empty
 
 TASK 4 — Rebrand
-app/layout.tsx: title "Second Brain", description academic survival AI
+app/layout.tsx: title "AemroSprint", description academic survival AI
 components/chat/greeting.tsx: "What should we tackle before your exam?" + subtitle about syllabus upload
 lib/constants.ts: replace suggestions array with 4 study prompts e.g. "What are my most urgent deadlines?", "Quiz me on the hardest topics", "I'm cramming tonight — what first?", "Summarize week 3 in 5 bullets"
-components/chat/app-sidebar.tsx: tooltip/brand text "Second Brain" instead of "Chatbot"
+components/chat/app-sidebar.tsx: tooltip/brand text "AemroSprint" instead of "Chatbot"
 
 TASK 5 — Shell polish (components/chat/shell.tsx)
 - When messages.length === 0: StudyWorkspace visible, subtle divider, helper text "Ask anything about your material below"
@@ -558,7 +558,7 @@ CONSTRAINTS
 WHEN DONE
 - Try Demo loads full flow instantly
 - Chat answer references demo course when asked "what are my deadlines?"
-- App title/branding says Second Brain
+- App title/branding says AemroSprint
 ```
 
 ---
