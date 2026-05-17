@@ -32,7 +32,8 @@ Be specific and practical. Use ISO dates (YYYY-MM-DD) when possible.`,
     });
 
     return NextResponse.json(object);
-  } catch {
+  } catch (error) {
+    console.error("Summary extraction failed with error:", error);
     return NextResponse.json(
       { error: "Failed to generate summary" },
       { status: 500 }
