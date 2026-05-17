@@ -4,7 +4,7 @@
 
 ---
 
-**[Live Demo]([https://aemro-sprint.vercel.app/])**
+**[Live Demo] ([https://aemro-sprint.vercel.app/])**
 
 ## 🌟 Key Features
 
