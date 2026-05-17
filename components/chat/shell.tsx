@@ -116,11 +116,14 @@ export function ChatShell() {
               </div>
             ) : null}
 
-            <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl flex-col gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
+            <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl flex-col gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4 animate-in fade-in duration-300">
               {messages.length === 0 && !isLoading ? (
-                <p className="text-center text-muted-foreground text-xs">
-                  Ask anything about your material below
-                </p>
+                <>
+                  <div className="w-full h-px bg-border/25 my-1.5" />
+                  <p className="text-center text-muted-foreground text-xs">
+                    Ask anything about your material below
+                  </p>
+                </>
               ) : null}
               {!isReadonly && (
                 <MultimodalInput

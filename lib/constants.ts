@@ -13,8 +13,8 @@ export const guestRegex = /^guest-\d+$/;
 export const DUMMY_PASSWORD = generateDummyPassword();
 
 export const suggestions = [
-  "What are my most urgent deadlines from my syllabus?",
-  "Break down this week's study priorities for my exam",
-  "Quiz me on the hardest topics in my course material",
-  "I'm cramming tonight — what should I study first?",
+  "What are my most urgent deadlines?",
+  "Quiz me on the hardest topics",
+  "I'm cramming tonight — what first?",
+  "Summarize week 3 in 5 bullets",
 ];
