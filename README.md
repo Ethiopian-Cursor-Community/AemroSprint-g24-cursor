@@ -1,165 +1,197 @@
-# AemroSprint
+# 🧠 AemroSprint
 
-**AI Student AemroSprint** — an AI-powered academic survival assistant built for the Cursor Hackathon.
-
-Turn syllabi and lecture notes into summaries, study roadmaps, quizzes, and last-minute exam cram plans — then ask follow-up questions in chat grounded in your material.
-
-**Repository:** [github.com/niyatberhe/AemroSprint-cursor](https://github.com/niyatberhe/AemroSprint-cursor)
+**AemroSprint** is an AI-powered academic survival assistant built for the **Cursor Hackathon**. Designed specifically for students facing syllabus anxiety or crunch-time cramming, AemroSprint takes course syllabi, lecture notes, or text outlines and transforms them into comprehensive study summaries and tailored, day-by-day study roadmaps leading up to your exam date.
 
 ---
 
-## Hackathon attribution (required by judges)
+## 🌟 Key Features
 
-### Original project
-
-This app is **based on** the open-source **[Vercel AI Chatbot](https://github.com/vercel/ai-chatbot)** template (Next.js App Router, Vercel AI SDK, Auth.js, Drizzle, shadcn/ui).
-
-- **Original repository:** https://github.com/vercel/ai-chatbot  
-- **License:** See [LICENSE](./LICENSE) (starter terms apply to upstream code we retained).
-
-We did **not** use GitHub’s “Fork” button. We copied the starter into our own repository [`AemroSprint-cursor`](https://github.com/niyatberhe/AemroSprint-cursor) and developed **AemroSprint** there.
-
-### What we implemented (our work vs. the starter)
-
-The starter is a **generic multi-model chatbot** with artifacts, image upload, and chat history. **Our hackathon contribution** is the academic “AemroSprint” product layer:
-
-| Area | Original starter | Our implementation |
-|------|------------------|-------------------|
-| **Product / UX** | Generic “Chatbot” greeting & demo prompts | **AemroSprint** branding, student-focused copy and suggested actions |
-| **Core features** | General chat + document artifacts | **Study pipeline:** PDF/text upload → AI summary → study roadmap |
-| **API routes** | Chat, history, files (images), documents | New `app/(chat)/api/study/upload`, `summarize`, `roadmap` with structured JSON |
-| **Data / types** | Chat messages only | `lib/study/types.ts` — Zod schemas for summaries, roadmaps, quizzes, emergency plans |
-| **Client state** | Chat hooks only | `hooks/use-study-context.tsx` — study session state across UI |
-| **UI** | Chat shell only | `components/study/*` — workspace, summary card, roadmap timeline, dropzone upload |
-| **AI behavior** | Generic assistant prompt | Student co-pilot prompts in `lib/ai/prompts.ts` |
-| **Removed** | Weather demo tool | Removed as irrelevant to the academic use case |
-| **Planned (in progress)** | — | Quiz, Emergency Exam Mode, Try Demo, chat grounded in uploaded material |
-
-**Files that are clearly ours (not in the upstream template):**
-
-- `lib/study/`, `components/study/`, `hooks/use-study-context.tsx`
-- `app/(chat)/api/study/**`
-- `AI Student AemroSprint HackathonPlan.docx`, `.cursor/plans/aemrosprint_mvp_b1934e2d.plan.md`
-- Rewritten [`README.md`](./README.md) (this file)
-
-**Files we kept from the starter (infrastructure):** auth, database schema, chat streaming, sidebar, shadcn components, artifact panel — extended where needed, not replaced.
+- **📂 Multi-Format Material Parser:** Drag and drop syllabus PDFs, paste raw course outlines, or upload lecture notes (supporting PDF and text files up to 5MB).
+- **📝 Intelligent Study Summaries:** Automatically extracts core learning objectives, key topics, major milestones, and important dates using Gemini structured generation.
+- **📅 Custom Study Roadmaps:** Generates a structured, day-by-day calendar countdown leading up to your exam, customized by your daily hour commitment.
+- **💬 Material-Grounded Study Chat:** (Integration in progress) A conversation panel powered by Gemini where you can ask follow-up questions directly grounded in your uploaded study material.
+- **🚨 Emergency Panic Cram Mode:** (Integration in progress) A high-intensity mode designed to maximize study efficiency during the final 24-48 hours before an exam.
 
 ---
 
-## What it does (MVP)
+## 🛠️ Starter Template & Hackathon Attribution
 
-| Feature | Status |
-|---------|--------|
-| PDF / text upload & parsing | Done |
-| AI study summary (topics, deadlines, objectives) | Done |
-| Day-by-day study roadmap | Done |
-| Quiz / flashcard generator | Planned |
-| Emergency Exam Mode (“panic” cram guide) | Planned |
-| Chat grounded in uploaded material | Planned |
-| Try Demo (offline fallback data) | Planned |
+To focus our engineering efforts on student-centric value, this project was developed using the open-source **[Vercel AI Chatbot](https://github.com/vercel/ai-chatbot)** starter template as our base infrastructure. 
 
-See [`AI Student AemroSprint HackathonPlan.docx`](./AI%20Student%20AemroSprint%20HackathonPlan.docx) for the full execution plan.
+### Original Template Assets Retained:
+- **Core Infrastructure:** User authentication (Auth.js), sidebar navigation, session-based chat history, and basic streaming chat UI.
+- **Database Architecture:** Basic PostgreSQL database schema (Drizzle ORM) for users and chat.
+- **Component Styling:** Tailwind CSS and Radix UI primitives (`shadcn/ui`).
 
----
+### What We Implemented (Our Hackathon Contribution):
+We created the academic **"AemroSprint"** product layer on top of the generic chatbot structure:
 
-## Tech stack
-
-- **Framework:** Next.js App Router (from [Vercel AI Chatbot](https://github.com/vercel/ai-chatbot))
-- **AI:** Vercel AI SDK + AI Gateway (`generateObject` for structured study outputs)
-- **UI:** shadcn/ui, Tailwind CSS
-- **Auth:** Auth.js (guest + email)
-- **Database:** Postgres (Drizzle) — chat history & users
-- **PDF parsing:** `pdf-parse` on study upload route
+| Functional Area | Upstream Starter Template | Our Custom AemroSprint Layer |
+| :--- | :--- | :--- |
+| **Product & UX Design** | Generic AI Chatbot shell, greeting messages, and generic demo prompts. | Fully custom **AemroSprint student workspace** branding, typography, color scheme, and copy. |
+| **Core Product Flow** | Standard chat conversation and general document artifacts. | **Academic Pipeline:** Syllabus dropzone / input panel $\rightarrow$ AI summary generation $\rightarrow$ Custom calendar roadmap. |
+| **Backend API Endpoints** | Standard chat endpoints, chat history, and file/image uploads. | **New Structured Study Endpoints:** `app/(chat)/api/study/upload`, `summarize`, and `roadmap` for structured JSON data parsing. |
+| **Data Models & Validation** | Chat and message records only. | Strong TypeScript schemas (`lib/study/types.ts`) using **Zod** to validate study summaries, calendars, and tasks. |
+| **State Management** | Local chat-specific state hooks. | Global study workspace React Context (`hooks/use-study-context.tsx`) coordinates upload state, exam parameters, and AI-generated outputs. |
+| **AI System & Prompts** | General-purpose assistant prompts. | Academic tutor personality and roadmap prompt structures tuned specifically for study material analysis (`lib/ai/prompts.ts`). |
 
 ---
 
-## Getting started
+## 🏗️ Technology Stack
 
-### Prerequisites
+- **Framework:** [Next.js 16 (App Router)](https://nextjs.org/) + [React 19](https://react.dev/)
+- **AI Integration:** [Vercel AI SDK Core](https://sdk.vercel.ai/docs) (`generateObject` for strict structured output and `streamObject` for fluid UI rendering)
+- **AI Model Provider:** [Google Generative AI](https://github.com/vercel/ai/tree/main/packages/google) leveraging Gemini family models:
+  - `gemini-2.5-flash` (Primary fast model for general study interaction)
+  - `gemini-2.5-pro` (For deep analytical reasoning and logical breakdown)
+  - `gemini-2.0-flash` (For real-time responses)
+  - `gemini-3-flash-preview` (Experimental cutting-edge preview model)
+- **Database & ORM:** [Drizzle ORM](https://orm.drizzle.team/) + [PostgreSQL](https://www.postgresql.org/) (Neon / Serverless Postgres)
+- **Authentication:** [Auth.js v5 Beta (NextAuth)](https://authjs.dev/) supporting guest credentials and email login.
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) with PostCSS & CSS Variables for fluid modern aesthetics.
+- **UI Components:** [Radix UI](https://www.radix-ui.com/) primitives + Lucide Icons.
+- **Parser Library:** `pdf-parse` for fast text extraction from uploaded PDF course documents.
+- **Tooling & DX:** [Biome](https://biomejs.dev/) for extremely fast linting & formatting, and [Playwright](https://playwright.dev/) for E2E integration testing.
 
-- Node.js 18+
-- pnpm
-- Postgres URL, AI Gateway key, Auth secret (see [`.env.example`](.env.example))
+---
 
-### Setup
+## ⚙️ Local Setup & Development Guide
 
+Follow these instructions to clone, configure, and run AemroSprint on your local machine.
+
+### 📋 Prerequisites
+
+Before starting, ensure you have the following installed:
+- **Node.js** (v18.x or higher)
+- **pnpm** (v10.x recommended, or npm/yarn)
+- A running **PostgreSQL database** (local or serverless Neon instance)
+- A **Google Gemini API Key** (available for free in the Google AI Studio)
+
+---
+
+### 🚀 Step-by-Step Installation
+
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/niyatberhe/AemroSprint-cursor.git
+cd AemroSprint-cursor
+```
+
+#### 2. Install Dependencies
+This project uses `pnpm` for efficient package management. Run:
 ```bash
 pnpm install
-cp .env.example .env.local
-# Fill in POSTGRES_URL, GOOGLE_GENERATIVE_AI_API_KEY, AUTH_SECRET, etc.
+```
 
+#### 3. Configure Environment Variables
+Copy the sample environment file to create your local environment:
+```bash
+cp .env.example .env.local
+```
+
+Open `.env.local` in your text editor and fill in the necessary variables:
+
+```env
+# Required for Auth.js session encryption. Must be at least 32 characters.
+# Generate one using: openssl rand -base64 32
+AUTH_SECRET=your_auth_secret_here
+
+# Your Gemini API Key from Google AI Studio
+GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key_here
+
+# PostgreSQL connection string (Neon or local PostgreSQL instance)
+# Example: postgresql://username:password@localhost:5432/aemrosprint
+POSTGRES_URL=your_postgres_connection_string_here
+
+# Optional: Required for chat image uploads (Vercel Blob storage)
+BLOB_READ_WRITE_TOKEN=your_blob_token_if_applicable
+
+# Optional: Redis connection string (for resumable streams)
+REDIS_URL=your_redis_connection_string_if_applicable
+```
+
+#### 4. Run Database Migrations
+Generate and run the PostgreSQL migrations using Drizzle to set up the users and chat tables:
+```bash
+# Generate the migration SQL files (if Drizzle schema is changed)
+pnpm db:generate
+
+# Execute the migrations on your database
 pnpm db:migrate
+```
+
+*Note: You can also use `pnpm db:push` for local rapid prototyping to push the schema directly to the database without generating formal migration scripts.*
+
+#### 5. Launch the Development Server
+Start the local server with TurboPack enabled for fast builds:
+```bash
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open your browser and navigate to **[http://localhost:3000](http://localhost:3000)**.
 
-### Environment variables
+---
 
-| Variable | Purpose |
-|----------|---------|
-| `AUTH_SECRET` | **Required.** Session encryption (NextAuth). Min 32 characters. [Generate one](https://generate-secret.vercel.app/32) |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | AI models (Gemini free tier) |
-| `POSTGRES_URL` | Chat, users, guest login |
-| `BLOB_READ_WRITE_TOKEN` | Image uploads in chat |
-| `REDIS_URL` | Optional — resumable streams |
+### 🛠️ Helpful Database Commands
 
-### Playwright tests
+Drizzle ORM provides a set of helpful scripts defined in `package.json`:
+- `pnpm db:studio` - Launches **Drizzle Studio**, an interactive database explorer, in your browser at `http://localhost:4983`.
+- `pnpm db:check` - Validates the database schema matches your local Drizzle code.
 
-E2E tests start the dev server via Playwright. **NextAuth needs `AUTH_SECRET`** — if it is missing you may see:
+---
 
-`MissingSecret: Please define a secret`
+## 🧪 E2E Testing with Playwright
 
-**Fix:**
+We have an integration test suite configured using Playwright to ensure seamless user registration, logins, uploads, and AI responses.
 
-1. Add `AUTH_SECRET` to `.env.local` (recommended), **or**
-2. Rely on the test fallback in [`tests/playwright-env.ts`](./tests/playwright-env.ts) (local/CI only — not for production).
+### Prerequisites for Tests
+Ensure you have `POSTGRES_URL` configured in your `.env.local` file. NextAuth also requires an `AUTH_SECRET`. If none is provided during local tests, the test suite applies a mock/testing secret defined in `tests/playwright-env.ts`.
 
-You still need **`POSTGRES_URL`** in `.env.local` for guest login during tests.
-
+### Run the Tests
+To run all end-to-end integration tests locally, run:
 ```bash
 pnpm test
 ```
 
-**GitHub Actions:** Add repository secrets `AUTH_SECRET` and `POSTGRES_URL` (and optionally `GOOGLE_GENERATIVE_AI_API_KEY`). If `AUTH_SECRET` is missing in CI, the workflow applies a test-only fallback.
-
----
-
-## Project structure
-
-```
-app/
-  (auth)/          # Login, register, guest
-  (chat)/          # Chat + study APIs
-components/
-  chat/            # Chat shell (from starter, customized)
-  study/           # Study workspace (our code)
-lib/
-  study/           # Types, PDF parsing (our code)
-  ai/              # Models, prompts
-  db/              # Drizzle schema & queries
+To run Playwright in interactive UI mode:
+```bash
+pnpm exec playwright test --ui
 ```
 
 ---
 
-## Team workflow
+## 📁 Project Directory Structure
 
-1. Branch from `main` or `dev`: `feat/member-N-description`
-2. Merge order: foundation → quiz/emergency UI → chat/demo polish
-3. Details: [`.cursor/plans/aemrosprint_mvp_b1934e2d.plan.md`](.cursor/plans/aemrosprint_mvp_b1934e2d.plan.md)
+```
+├── app/
+│   ├── (auth)/                  # User login, registration, and guest session routes
+│   └── (chat)/                  # Chat interfaces and study workflow APIs
+│       ├── api/
+│       │   ├── chat/            # Streaming conversational chat endpoint
+│       │   ├── study/           # AemroSprint API endpoints
+│       │   │   ├── upload/      # PDF text parser endpoint (pdf-parse)
+│       │   │   ├── summarize/   # AI study material summary route (structured JSON)
+│       │   │   └── roadmap/     # Custom daily planner generation route
+│       │   └── history/         # Fetching user chat history logs
+│       └── page.tsx             # Main chat and study workspace container page
+├── components/
+│   ├── chat/                    # AI conversational chat panels (adapted from starter)
+│   ├── study/                   # AemroSprint study dashboard components
+│   │   ├── study-workspace.tsx  # Main dashboard structure (dropzones, calendar inputs)
+│   │   ├── summary-card.tsx     # Display cards for objectives, topics, and tasks
+│   │   └── roadmap-view.tsx     # Day-by-day structured timeline presentation
+│   └── ui/                      # Base reusable shadcn/ui components (buttons, inputs)
+├── hooks/
+│   └── use-study-context.tsx    # State management hook for AemroSprint data pipeline
+├── lib/
+│   ├── ai/                      # System prompts, provider setups, and model profiles
+│   ├── db/                      # Drizzle schemas, migrations, and database client
+│   └── study/                   # Study data interfaces, Zod schemas, and mocks
+└── tests/                       # Playwright E2E integration test suite
+```
 
 ---
 
-## Demo script (2 minutes)
+## 📄 License
 
-1. Open app — student pain: exam soon, no plan
-2. Upload syllabus PDF or paste text → **Analyze Material**
-3. Show summary → set exam date → **Generate Roadmap**
-4. (When built) Quiz + **PANIC MODE**
-5. Ask chat: “What should I study first tonight?”
-
----
-
-## License
-
-See [LICENSE](./LICENSE). Third-party starter code remains under its original license; our additions are part of this hackathon submission.
+This repository is distributed under the terms of the **MIT License**. Third-party starter assets inherited from the Vercel AI Chatbot remain governed by their upstream license agreements. See the [LICENSE](./LICENSE) file for full details.
