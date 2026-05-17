@@ -51,6 +51,23 @@ const THEME_COLOR_SCRIPT = `\
   updateThemeColor();
 })();`;
 
+const DIAGNOSTIC_SCRIPT = `\
+window.addEventListener('error', function(e) {
+  var overlay = document.getElementById('error-diagnostic-overlay');
+  if (overlay) {
+    overlay.style.display = 'block';
+    overlay.innerText = '⚠️ Client Runtime Error: ' + e.message + ' (' + e.filename + ':' + e.lineno + ')';
+  }
+});
+window.addEventListener('unhandledrejection', function(e) {
+  var overlay = document.getElementById('error-diagnostic-overlay');
+  if (overlay) {
+    overlay.style.display = 'block';
+    overlay.innerText = '⚠️ Unhandled Promise Rejection: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
+  }
+});
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -69,8 +86,35 @@ export default function RootLayout({
             __html: THEME_COLOR_SCRIPT,
           }}
         />
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: "Required"
+          dangerouslySetInnerHTML={{
+            __html: DIAGNOSTIC_SCRIPT,
+          }}
+        />
       </head>
       <body className="antialiased" suppressHydrationWarning>
+        <div
+          id="error-diagnostic-overlay"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            background: "rgba(239, 68, 68, 0.98)",
+            color: "white",
+            zIndex: 9999999,
+            padding: "14px 20px",
+            fontFamily: "ui-monospace, monospace",
+            fontSize: "13px",
+            lineHeight: "1.5",
+            fontWeight: "bold",
+            display: "none",
+            wordBreak: "break-all",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+            borderBottom: "3px solid #b91c1c"
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
