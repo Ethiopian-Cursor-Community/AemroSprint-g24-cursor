@@ -19,6 +19,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useStudyContext } from "@/hooks/use-study-context";
 
+import { toast } from "sonner";
+
 export function StudyWorkspace() {
   const {
     summary,
@@ -68,6 +70,10 @@ export function StudyWorkspace() {
   };
 
   const handleQuizMe = async () => {
+    if (!summary) {
+      toast.warning("Please upload a syllabus or try the CS 301 Demo first to generate a custom AI quiz!");
+      return;
+    }
     const questions = await generateQuiz();
     if (questions && questions.length > 0) {
       setQuizOpen(true);
@@ -75,6 +81,10 @@ export function StudyWorkspace() {
   };
 
   const handlePanic = () => {
+    if (!summary) {
+      toast.warning("Please upload a syllabus or try the CS 301 Demo first to generate an emergency cram plan!");
+      return;
+    }
     const hours = Number(panicHours) || 24;
     generateEmergency(hours);
   };
@@ -122,46 +132,44 @@ export function StudyWorkspace() {
           )}
         </div>
 
-        {/* Feature Action Buttons for Quiz & Panic */}
-        {summary && (
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Button
-              className="rounded-xl font-semibold cursor-pointer"
-              disabled={isLoading}
-              onClick={handleQuizMe}
-              type="button"
-              variant="outline"
-            >
-              <ZapIcon className="mr-2 size-4 text-primary animate-pulse" />
-              {loadingStep === "quiz" ? "Building quiz..." : "Quiz Me"}
-            </Button>
-            <Button
-              className="rounded-xl font-semibold border-red-500/50 bg-red-500/10 text-red-700 hover:bg-red-500/20 dark:text-red-300 cursor-pointer"
-              disabled={isLoading}
-              onClick={handlePanic}
-              type="button"
-              variant="outline"
-            >
-              <FlameIcon className="mr-2 size-4 text-red-500" />
-              {loadingStep === "emergency" ? "Panicking..." : "PANIC MODE"}
-            </Button>
-            <div className="flex items-center gap-2">
-              <Label className="sr-only" htmlFor="panic-hours">
-                Hours until exam
-              </Label>
-              <Input
-                className="h-9 w-16 rounded-lg bg-background/50 text-center text-sm"
-                id="panic-hours"
-                max={168}
-                min={1}
-                onChange={(e) => setPanicHours(Number(e.target.value) || 24)}
-                type="number"
-                value={panicHours}
-              />
-              <span className="text-muted-foreground text-xs">h left</span>
-            </div>
+        {/* Feature Action Buttons for Quiz & Panic - Always Visible! */}
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <Button
+            className="rounded-xl font-semibold cursor-pointer"
+            disabled={isLoading}
+            onClick={handleQuizMe}
+            type="button"
+            variant="outline"
+          >
+            <ZapIcon className="mr-2 size-4 text-primary animate-pulse" />
+            {loadingStep === "quiz" ? "Building quiz..." : "Quiz Me"}
+          </Button>
+          <Button
+            className="rounded-xl font-semibold border-red-500/50 bg-red-500/10 text-red-700 hover:bg-red-500/20 dark:text-red-300 cursor-pointer"
+            disabled={isLoading}
+            onClick={handlePanic}
+            type="button"
+            variant="outline"
+          >
+            <FlameIcon className="mr-2 size-4 text-red-500" />
+            {loadingStep === "emergency" ? "Panicking..." : "PANIC MODE"}
+          </Button>
+          <div className="flex items-center gap-2">
+            <Label className="sr-only" htmlFor="panic-hours">
+              Hours until exam
+            </Label>
+            <Input
+              className="h-9 w-16 rounded-lg bg-background/50 text-center text-sm"
+              id="panic-hours"
+              max={168}
+              min={1}
+              onChange={(e) => setPanicHours(Number(e.target.value) || 24)}
+              type="number"
+              value={panicHours}
+            />
+            <span className="text-muted-foreground text-xs">h left</span>
           </div>
-        )}
+        </div>
       </header>
 
       {/* Main Dropzone / Paste panel */}
