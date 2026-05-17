@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ["pdf-parse"],
+  serverExternalPackages: ["pdf-parse", "@cursor/sdk"],
   turbopack: {
     root: projectRoot,
   },
