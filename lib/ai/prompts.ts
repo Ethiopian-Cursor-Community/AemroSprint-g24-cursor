@@ -63,20 +63,36 @@ About the origin of user's request:
 - country: ${requestHints.country}
 `;
 
+export const AemroSprintPrompt = `
+You are AemroSprint, the student's academic study co-pilot. When answering questions:
+1. Ground your answers in the provided course material studyContext (the summary and text excerpts).
+2. Proactively cite specific topics, milestones, or deadlines when they are relevant.
+3. If the user asks something not covered in their materials, answer accurately but remind them that this information is outside of their uploaded syllabus/notes.
+4. If no course material has been analyzed yet, act as a general helpful academic tutor.
+`;
+
 export const systemPrompt = ({
   requestHints,
   supportsTools,
+  studyContext,
 }: {
   requestHints: RequestHints;
   supportsTools: boolean;
+  studyContext?: string;
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
+  const basePrompt = `${regularPrompt}\n\n${requestPrompt}`;
 
-  if (!supportsTools) {
-    return `${regularPrompt}\n\n${requestPrompt}`;
+  let groundedPrompt = basePrompt;
+  if (studyContext) {
+    groundedPrompt = `${AemroSprintPrompt}\n\nSTUDY MATERIAL AND CONTEXT FOR THIS CONVERSATION:\n${studyContext}\n\n${basePrompt}`;
   }
 
-  return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
+  if (!supportsTools) {
+    return groundedPrompt;
+  }
+
+  return `${groundedPrompt}\n\n${artifactsPrompt}`;
 };
 
 export const codePrompt = `

@@ -7,6 +7,7 @@ import {
   useContext,
   useMemo,
   useState,
+  useEffect,
 } from "react";
 import { toast } from "sonner";
 import type {
@@ -15,6 +16,13 @@ import type {
   RoadmapDay,
   SummaryJSON,
 } from "@/lib/study/types";
+import {
+  DEMO_SUMMARY,
+  DEMO_ROADMAP,
+  DEMO_QUIZ,
+  DEMO_EMERGENCY,
+  DEMO_EXTRACTED_TEXT,
+} from "@/lib/study/demo-data";
 
 export type StudyLoadingStep =
   | "idle"
@@ -45,6 +53,7 @@ type StudyContextValue = {
   generateQuiz: () => Promise<QuizQuestion[] | null>;
   generateEmergency: (hoursRemaining?: number) => Promise<void>;
   resetStudy: () => void;
+  setFromDemo: () => void;
   buildStudyContextString: () => string;
 };
 
@@ -67,6 +76,60 @@ export function StudyProvider({ children }: { children: ReactNode }) {
 
   const isLoading = loadingStep !== "idle";
 
+  // Hydrate state from sessionStorage on mount
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem("second-brain-study");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.extractedText) setExtractedText(parsed.extractedText);
+        if (parsed.fileName) setFileName(parsed.fileName);
+        if (parsed.pastedText) setPastedText(parsed.pastedText);
+        if (parsed.summary) setSummary(parsed.summary);
+        if (parsed.roadmap) setRoadmap(parsed.roadmap);
+        if (parsed.quiz) setQuiz(parsed.quiz);
+        if (parsed.emergency) setEmergency(parsed.emergency);
+        if (parsed.examDate) setExamDate(parsed.examDate);
+        if (parsed.hoursPerDay) setHoursPerDay(parsed.hoursPerDay);
+        if (parsed.isDemo !== undefined) setIsDemo(parsed.isDemo);
+      }
+    } catch (e) {
+      console.error("Failed to load study session from sessionStorage", e);
+    }
+  }, []);
+
+  // Persist state to sessionStorage on changes
+  useEffect(() => {
+    try {
+      const stateToSave = {
+        extractedText,
+        fileName,
+        pastedText,
+        summary,
+        roadmap,
+        quiz,
+        emergency,
+        examDate,
+        hoursPerDay,
+        isDemo,
+      };
+      sessionStorage.setItem("second-brain-study", JSON.stringify(stateToSave));
+    } catch (e) {
+      // Ignore storage errors (e.g. quota exceeded)
+    }
+  }, [
+    extractedText,
+    fileName,
+    pastedText,
+    summary,
+    roadmap,
+    quiz,
+    emergency,
+    examDate,
+    hoursPerDay,
+    isDemo,
+  ]);
+
   const resetStudy = useCallback(() => {
     setExtractedText("");
     setFileName(null);
@@ -75,8 +138,28 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     setRoadmap([]);
     setQuiz([]);
     setEmergency(null);
+    setExamDate("");
+    setHoursPerDay(3);
     setIsDemo(false);
     setLoadingStep("idle");
+    try {
+      sessionStorage.removeItem("second-brain-study");
+    } catch (_) {}
+  }, []);
+
+  const setFromDemo = useCallback(() => {
+    setExtractedText(DEMO_EXTRACTED_TEXT);
+    setFileName("CS_301_Syllabus.pdf");
+    setPastedText(DEMO_EXTRACTED_TEXT);
+    setSummary(DEMO_SUMMARY);
+    setRoadmap(DEMO_ROADMAP);
+    setQuiz(DEMO_QUIZ);
+    setEmergency(DEMO_EMERGENCY);
+    setExamDate("2026-05-22");
+    setHoursPerDay(3);
+    setIsDemo(true);
+    setLoadingStep("idle");
+    toast.success("CS 301 Study Demo loaded instantly!");
   }, []);
 
   const buildStudyContextString = useCallback(() => {
@@ -146,7 +229,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
         setRoadmap([]);
         setQuiz([]);
         setEmergency(null);
-        toast.success("Material analyzed");
+        toast.success("Material analyzed successfully!");
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Analysis failed";
@@ -183,7 +266,8 @@ export function StudyProvider({ children }: { children: ReactNode }) {
 
       const data = (await res.json()) as { days: RoadmapDay[] };
       setRoadmap(data.days);
-      toast.success("Study roadmap ready");
+      setIsDemo(false);
+      toast.success("Study roadmap generated!");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Roadmap failed";
       toast.error(message);
@@ -288,6 +372,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
       generateQuiz,
       generateEmergency,
       resetStudy,
+      setFromDemo,
       buildStudyContextString,
     }),
     [
@@ -308,6 +393,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
       generateQuiz,
       generateEmergency,
       resetStudy,
+      setFromDemo,
       buildStudyContextString,
     ]
   );

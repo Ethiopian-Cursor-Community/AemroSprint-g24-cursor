@@ -27,6 +27,7 @@ import type { Vote } from "@/lib/db/schema";
 import { ChatbotError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
 import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
+import { useStudyContext } from "./use-study-context";
 
 type ActiveChatContextValue = {
   chatId: string;
@@ -81,6 +82,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
 
   const [input, setInput] = useState("");
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
+  const { buildStudyContextString } = useStudyContext();
 
   const { data: chatData, isLoading } = useSWR(
     isNewChat
@@ -114,7 +116,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       const lastMessage = currentMessages.at(-1);
       return (
         lastMessage?.parts?.some(
-          (part) =>
+          (part: any) =>
             "state" in part &&
             part.state === "approval-responded" &&
             "approval" in part &&
@@ -130,7 +132,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
         const isToolApprovalContinuation =
           lastMessage?.role !== "user" ||
           request.messages.some((msg) =>
-            msg.parts?.some((part) => {
+            msg.parts?.some((part: any) => {
               const state = (part as { state?: string }).state;
               return (
                 state === "approval-responded" || state === "output-denied"
@@ -146,13 +148,14 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
               : { message: lastMessage }),
             selectedChatModel: currentModelIdRef.current,
             selectedVisibilityType: visibility,
+            studyContext: buildStudyContextString() || undefined,
             ...request.body,
           },
         };
       },
     }),
     onData: (dataPart) => {
-      setDataStream((ds) => (ds ? [...ds, dataPart] : []));
+      setDataStream((ds) => (ds ? [...ds, dataPart as any] : []));
     },
     onFinish: () => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));

@@ -1,6 +1,6 @@
 "use client";
 
-import { BrainIcon, FileUpIcon, FlameIcon, ZapIcon } from "lucide-react";
+import { BrainIcon, FileUpIcon, FlameIcon, ZapIcon, SparklesIcon, RefreshCwIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { EmergencyPanel } from "@/components/study/emergency-panel";
@@ -38,6 +38,8 @@ export function StudyWorkspace() {
     generateQuiz,
     generateEmergency,
     fileName,
+    setFromDemo,
+    resetStudy,
   } = useStudyContext();
 
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -78,58 +80,91 @@ export function StudyWorkspace() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-2 py-4 md:px-4">
-      <header className="text-center space-y-2">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-2 py-6 md:px-4">
+      {/* Header Banner */}
+      <header className="text-center space-y-3">
         <div className="flex items-center justify-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-            <BrainIcon className="size-6" />
+          <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20 shadow-[0_0_15px_rgba(124,58,237,0.15)]">
+            <BrainIcon className="size-6 text-primary" />
           </div>
-          <h2 className="font-bold text-2xl tracking-tight md:text-3xl bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <h2 className="font-extrabold text-2xl tracking-tight md:text-3xl bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
             AemroSprint
           </h2>
         </div>
         <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
           Your AI academic survival system — upload, plan, and cram smarter.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+
+        {/* Demo and Control triggers */}
+        <div className="pt-2 flex flex-wrap justify-center items-center gap-2.5">
           <Button
-            className="rounded-xl font-semibold"
-            disabled={isLoading || !summary}
-            onClick={handleQuizMe}
             type="button"
             variant="outline"
+            size="sm"
+            onClick={setFromDemo}
+            className="text-xs font-semibold px-4 rounded-full border-primary/20 hover:border-primary/50 hover:bg-primary/5 flex items-center gap-1.5 cursor-pointer"
           >
-            <ZapIcon className="mr-2 size-4" />
-            {loadingStep === "quiz" ? "Building quiz..." : "Quiz Me"}
+            <SparklesIcon className="size-3.5 text-primary" />
+            <span>Try CS 301 Demo</span>
           </Button>
-          <Button
-            className="rounded-xl font-semibold border-red-500/50 bg-red-500/10 text-red-700 hover:bg-red-500/20 dark:text-red-300"
-            disabled={isLoading || !summary}
-            onClick={handlePanic}
-            type="button"
-            variant="outline"
-          >
-            <FlameIcon className="mr-2 size-4" />
-            {loadingStep === "emergency" ? "Panicking..." : "PANIC MODE"}
-          </Button>
-          <div className="flex items-center gap-2">
-            <Label className="sr-only" htmlFor="panic-hours">
-              Hours until exam
-            </Label>
-            <Input
-              className="h-9 w-16 rounded-lg bg-background/50 text-center text-sm"
-              id="panic-hours"
-              max={168}
-              min={1}
-              onChange={(e) => setPanicHours(Number(e.target.value) || 24)}
-              type="number"
-              value={panicHours}
-            />
-            <span className="text-muted-foreground text-xs">h left</span>
-          </div>
+
+          {(summary || roadmap.length > 0 || quiz.length > 0 || emergency) && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={resetStudy}
+              className="text-xs font-semibold px-4 rounded-full text-muted-foreground hover:text-foreground flex items-center gap-1.5 cursor-pointer"
+            >
+              <RefreshCwIcon className="size-3.5" />
+              <span>Reset Dashboard</span>
+            </Button>
+          )}
         </div>
+
+        {/* Feature Action Buttons for Quiz & Panic */}
+        {summary && (
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Button
+              className="rounded-xl font-semibold cursor-pointer"
+              disabled={isLoading}
+              onClick={handleQuizMe}
+              type="button"
+              variant="outline"
+            >
+              <ZapIcon className="mr-2 size-4 text-primary animate-pulse" />
+              {loadingStep === "quiz" ? "Building quiz..." : "Quiz Me"}
+            </Button>
+            <Button
+              className="rounded-xl font-semibold border-red-500/50 bg-red-500/10 text-red-700 hover:bg-red-500/20 dark:text-red-300 cursor-pointer"
+              disabled={isLoading}
+              onClick={handlePanic}
+              type="button"
+              variant="outline"
+            >
+              <FlameIcon className="mr-2 size-4 text-red-500" />
+              {loadingStep === "emergency" ? "Panicking..." : "PANIC MODE"}
+            </Button>
+            <div className="flex items-center gap-2">
+              <Label className="sr-only" htmlFor="panic-hours">
+                Hours until exam
+              </Label>
+              <Input
+                className="h-9 w-16 rounded-lg bg-background/50 text-center text-sm"
+                id="panic-hours"
+                max={168}
+                min={1}
+                onChange={(e) => setPanicHours(Number(e.target.value) || 24)}
+                type="number"
+                value={panicHours}
+              />
+              <span className="text-muted-foreground text-xs">h left</span>
+            </div>
+          </div>
+        )}
       </header>
 
+      {/* Main Dropzone / Paste panel */}
       <section className="grid gap-6 md:grid-cols-2">
         <div
           {...getRootProps()}
@@ -152,11 +187,11 @@ export function StudyWorkspace() {
         </div>
 
         <div className="flex flex-col gap-2.5">
-          <Label className="text-sm font-medium pl-1" htmlFor="syllabus-text">
+          <Label className="text-sm font-medium pl-1 text-muted-foreground" htmlFor="syllabus-text">
             Or paste syllabus text
           </Label>
           <Textarea
-            className="min-h-[160px] resize-none bg-card/40 backdrop-blur-sm border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all rounded-2xl"
+            className="min-h-[160px] resize-none bg-card/40 backdrop-blur-sm border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all rounded-2xl text-sm"
             id="syllabus-text"
             onChange={(e) => setPastedText(e.target.value)}
             placeholder="Paste course outline, deadlines, topics..."
@@ -165,13 +200,11 @@ export function StudyWorkspace() {
         </div>
       </section>
 
-      <section className="flex flex-wrap items-end gap-4 p-6 rounded-2xl bg-secondary/30 border border-border/40 backdrop-blur-sm">
-        <div className="flex flex-col gap-2">
-          <Label
-            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-            htmlFor="exam-date"
-          >
-            Exam date
+      {/* Inputs and Controls */}
+      <section className="flex flex-wrap items-end gap-4 p-6 rounded-2xl bg-secondary/20 border border-border/40 backdrop-blur-sm">
+        <div className="flex flex-col gap-2 w-full md:w-auto">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" htmlFor="exam-date">
+            Exam Date
           </Label>
           <Input
             className="w-full md:w-[200px] bg-background/50 border-border/40 focus:border-primary/50 rounded-xl"
@@ -181,12 +214,9 @@ export function StudyWorkspace() {
             value={examDate}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <Label
-            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-            htmlFor="hours-per-day"
-          >
-            Hours / day
+        <div className="flex flex-col gap-2 w-full md:w-auto">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" htmlFor="hours-per-day">
+            Hours / Day
           </Label>
           <Input
             className="w-full md:w-[120px] bg-background/50 border-border/40 focus:border-primary/50 rounded-xl"
@@ -198,66 +228,76 @@ export function StudyWorkspace() {
             value={hoursPerDay}
           />
         </div>
-        <div className="flex flex-1 gap-3">
+        <div className="flex flex-1 flex-wrap gap-3 w-full">
           <Button
-            className="flex-1 font-semibold rounded-xl h-11 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="flex-1 font-semibold rounded-xl h-11 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             disabled={isLoading}
             onClick={handleAnalyze}
             type="button"
             variant="default"
           >
             {loadingStep === "upload" || loadingStep === "summary"
-              ? "Analyzing..."
+              ? "Analyzing Material..."
               : "Analyze Material"}
           </Button>
+
           <Button
-            className="flex-1 font-semibold rounded-xl h-11 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="flex-1 font-semibold rounded-xl h-11 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             disabled={isLoading || !summary}
             onClick={() => generateRoadmap()}
             type="button"
             variant="secondary"
           >
-            {loadingStep === "roadmap" ? "Planning..." : "Generate Roadmap"}
+            {loadingStep === "roadmap" ? "Generating Plan..." : "Generate Roadmap"}
           </Button>
         </div>
       </section>
 
-      <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 pl-1">
-            <div className="size-1.5 rounded-full bg-primary" />
-            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
-              Summary
-            </h3>
+      {/* Main Content Outputs (Summary, Roadmap, and Panic) */}
+      {(summary || roadmap.length > 0 || emergency || loadingStep === "summary" || loadingStep === "roadmap" || loadingStep === "emergency") && (
+        <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {/* Summary column */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 pl-1">
+              <div className="size-1.5 rounded-full bg-primary" />
+              <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
+                Summary
+              </h3>
+            </div>
+            <SummaryCard
+              isLoading={loadingStep === "summary"}
+              summary={summary}
+            />
           </div>
-          <SummaryCard
-            isLoading={loadingStep === "summary"}
-            summary={summary}
-          />
-        </div>
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 pl-1">
-            <div className="size-1.5 rounded-full bg-primary" />
-            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
-              Roadmap
-            </h3>
-          </div>
-          <RoadmapView days={roadmap} isLoading={loadingStep === "roadmap"} />
-        </div>
-        <div className="space-y-3 md:col-span-2 lg:col-span-1">
-          <div className="flex items-center gap-2 pl-1">
-            <div className="size-1.5 rounded-full bg-red-500" />
-            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
-              Panic mode
-            </h3>
-          </div>
-          <EmergencyPanel
-            isLoading={loadingStep === "emergency"}
-            plan={emergency}
-          />
-        </div>
-      </section>
 
+          {/* Roadmap column */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 pl-1">
+              <div className="size-1.5 rounded-full bg-primary" />
+              <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
+                Roadmap
+              </h3>
+            </div>
+            <RoadmapView days={roadmap} isLoading={loadingStep === "roadmap"} />
+          </div>
+
+          {/* Panic mode column */}
+          <div className="space-y-3 md:col-span-2 lg:col-span-1">
+            <div className="flex items-center gap-2 pl-1">
+              <div className="size-1.5 rounded-full bg-red-500" />
+              <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
+                Panic mode
+              </h3>
+            </div>
+            <EmergencyPanel
+              isLoading={loadingStep === "emergency"}
+              plan={emergency}
+            />
+          </div>
+        </section>
+      )}
+
+      {/* Pop-up Quiz Dialog */}
       <Dialog onOpenChange={setQuizOpen} open={quizOpen}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto sm:max-w-xl">
           <DialogHeader>
