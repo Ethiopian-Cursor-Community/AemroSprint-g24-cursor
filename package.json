@@ -108,7 +108,10 @@
   "packageManager": "pnpm@10.32.1",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "sqlite3"
+      "sqlite3",
+      "esbuild",
+      "sharp",
+      "bufferutil"
     ]
   }
 }
