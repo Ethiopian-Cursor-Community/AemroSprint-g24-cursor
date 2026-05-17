@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RoadmapDay } from "@/lib/study/types";
 
@@ -17,6 +18,15 @@ const priorityBorder: Record<RoadmapDay["priority"], string> = {
 };
 
 export function RoadmapView({ days, isLoading }: RoadmapViewProps) {
+  const todayRef = useRef<HTMLElement | null>(null);
+  const today = new Date().toISOString().slice(0, 10);
+
+  useEffect(() => {
+    if (!isLoading && days.length > 0 && todayRef.current) {
+      todayRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [days, isLoading]);
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
@@ -40,8 +50,6 @@ export function RoadmapView({ days, isLoading }: RoadmapViewProps) {
     );
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-
   return (
     <div className="flex max-h-[500px] flex-col gap-4 overflow-y-auto pr-2 no-scrollbar hover:scrollbar-thin transition-all">
       {days.map((day) => {
@@ -50,6 +58,7 @@ export function RoadmapView({ days, isLoading }: RoadmapViewProps) {
           <article
             className={`group relative rounded-2xl border border-border/10 border-l-4 bg-card/40 p-5 transition-all hover:bg-card/60 hover:scale-[1.01] shadow-sm ${priorityBorder[day.priority]}`}
             key={`${day.day}-${day.date}`}
+            ref={isToday ? todayRef : undefined}
           >
             {isToday && (
               <div className="absolute -left-[4px] top-0 bottom-0 w-1 bg-primary shadow-glow rounded-l-full" />

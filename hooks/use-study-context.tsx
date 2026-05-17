@@ -42,6 +42,8 @@ type StudyContextValue = {
   pastedText: string;
   analyzeMaterial: (file?: File) => Promise<void>;
   generateRoadmap: () => Promise<void>;
+  generateQuiz: () => Promise<QuizQuestion[] | null>;
+  generateEmergency: (hoursRemaining?: number) => Promise<void>;
   resetStudy: () => void;
   buildStudyContextString: () => string;
 };
@@ -190,6 +192,80 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     }
   }, [summary, examDate, hoursPerDay]);
 
+  const generateQuiz = useCallback(async (): Promise<QuizQuestion[] | null> => {
+    if (!extractedText.trim()) {
+      toast.error("Analyze your material first");
+      return null;
+    }
+
+    try {
+      setLoadingStep("quiz");
+      const res = await fetch(`${basePath()}/api/study/quiz`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: extractedText }),
+      });
+
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(err.error ?? `Quiz failed (${res.status})`);
+      }
+
+      const data = (await res.json()) as { questions: QuizQuestion[] };
+      setQuiz(data.questions);
+      setIsDemo(false);
+      toast.success(`Quiz ready — ${data.questions.length} questions`);
+      return data.questions;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Quiz failed";
+      toast.error(message);
+      return null;
+    } finally {
+      setLoadingStep("idle");
+    }
+  }, [extractedText]);
+
+  const generateEmergency = useCallback(
+    async (hoursRemaining = 24) => {
+      if (!summary) {
+        toast.error("Analyze your material first");
+        return;
+      }
+
+      try {
+        setLoadingStep("emergency");
+        const res = await fetch(`${basePath()}/api/study/emergency`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ summary, hoursRemaining }),
+        });
+
+        if (!res.ok) {
+          const err = (await res.json().catch(() => ({}))) as {
+            error?: string;
+          };
+          throw new Error(
+            err.error ?? `Emergency plan failed (${res.status})`
+          );
+        }
+
+        const data = (await res.json()) as EmergencyPlan;
+        setEmergency(data);
+        setIsDemo(false);
+        toast.success("Emergency cram plan ready");
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Emergency plan failed";
+        toast.error(message);
+      } finally {
+        setLoadingStep("idle");
+      }
+    },
+    [summary]
+  );
+
   const value = useMemo(
     () => ({
       extractedText,
@@ -209,6 +285,8 @@ export function StudyProvider({ children }: { children: ReactNode }) {
       setPastedText,
       analyzeMaterial,
       generateRoadmap,
+      generateQuiz,
+      generateEmergency,
       resetStudy,
       buildStudyContextString,
     }),
@@ -227,6 +305,8 @@ export function StudyProvider({ children }: { children: ReactNode }) {
       pastedText,
       analyzeMaterial,
       generateRoadmap,
+      generateQuiz,
+      generateEmergency,
       resetStudy,
       buildStudyContextString,
     ]

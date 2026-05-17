@@ -1,20 +1,30 @@
 "use client";
 
-import { BrainIcon, FileUpIcon } from "lucide-react";
+import { BrainIcon, FileUpIcon, FlameIcon, ZapIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { EmergencyPanel } from "@/components/study/emergency-panel";
+import { QuizSession } from "@/components/study/quiz-session";
+import { RoadmapView } from "@/components/study/roadmap-view";
+import { SummaryCard } from "@/components/study/summary-card";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useStudyContext } from "@/hooks/use-study-context";
-import { RoadmapView } from "./roadmap-view";
-import { SummaryCard } from "./summary-card";
 
 export function StudyWorkspace() {
   const {
     summary,
     roadmap,
+    quiz,
+    emergency,
     examDate,
     hoursPerDay,
     isLoading,
@@ -25,10 +35,14 @@ export function StudyWorkspace() {
     setHoursPerDay,
     analyzeMaterial,
     generateRoadmap,
+    generateQuiz,
+    generateEmergency,
     fileName,
   } = useStudyContext();
 
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [quizOpen, setQuizOpen] = useState(false);
+  const [panicHours, setPanicHours] = useState(24);
 
   const onDrop = useCallback((accepted: File[]) => {
     const file = accepted.at(0);
@@ -51,6 +65,18 @@ export function StudyWorkspace() {
     analyzeMaterial(pendingFile ?? undefined);
   };
 
+  const handleQuizMe = async () => {
+    const questions = await generateQuiz();
+    if (questions && questions.length > 0) {
+      setQuizOpen(true);
+    }
+  };
+
+  const handlePanic = () => {
+    const hours = Number(panicHours) || 24;
+    generateEmergency(hours);
+  };
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-2 py-4 md:px-4">
       <header className="text-center space-y-2">
@@ -65,6 +91,43 @@ export function StudyWorkspace() {
         <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
           Your AI academic survival system — upload, plan, and cram smarter.
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+          <Button
+            className="rounded-xl font-semibold"
+            disabled={isLoading || !summary}
+            onClick={handleQuizMe}
+            type="button"
+            variant="outline"
+          >
+            <ZapIcon className="mr-2 size-4" />
+            {loadingStep === "quiz" ? "Building quiz..." : "Quiz Me"}
+          </Button>
+          <Button
+            className="rounded-xl font-semibold border-red-500/50 bg-red-500/10 text-red-700 hover:bg-red-500/20 dark:text-red-300"
+            disabled={isLoading || !summary}
+            onClick={handlePanic}
+            type="button"
+            variant="outline"
+          >
+            <FlameIcon className="mr-2 size-4" />
+            {loadingStep === "emergency" ? "Panicking..." : "PANIC MODE"}
+          </Button>
+          <div className="flex items-center gap-2">
+            <Label className="sr-only" htmlFor="panic-hours">
+              Hours until exam
+            </Label>
+            <Input
+              className="h-9 w-16 rounded-lg bg-background/50 text-center text-sm"
+              id="panic-hours"
+              max={168}
+              min={1}
+              onChange={(e) => setPanicHours(Number(e.target.value) || 24)}
+              type="number"
+              value={panicHours}
+            />
+            <span className="text-muted-foreground text-xs">h left</span>
+          </div>
+        </div>
       </header>
 
       <section className="grid gap-6 md:grid-cols-2">
@@ -89,7 +152,9 @@ export function StudyWorkspace() {
         </div>
 
         <div className="flex flex-col gap-2.5">
-          <Label className="text-sm font-medium pl-1" htmlFor="syllabus-text">Or paste syllabus text</Label>
+          <Label className="text-sm font-medium pl-1" htmlFor="syllabus-text">
+            Or paste syllabus text
+          </Label>
           <Textarea
             className="min-h-[160px] resize-none bg-card/40 backdrop-blur-sm border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all rounded-2xl"
             id="syllabus-text"
@@ -102,7 +167,12 @@ export function StudyWorkspace() {
 
       <section className="flex flex-wrap items-end gap-4 p-6 rounded-2xl bg-secondary/30 border border-border/40 backdrop-blur-sm">
         <div className="flex flex-col gap-2">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" htmlFor="exam-date">Exam date</Label>
+          <Label
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            htmlFor="exam-date"
+          >
+            Exam date
+          </Label>
           <Input
             className="w-full md:w-[200px] bg-background/50 border-border/40 focus:border-primary/50 rounded-xl"
             id="exam-date"
@@ -112,7 +182,12 @@ export function StudyWorkspace() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" htmlFor="hours-per-day">Hours / day</Label>
+          <Label
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            htmlFor="hours-per-day"
+          >
+            Hours / day
+          </Label>
           <Input
             className="w-full md:w-[120px] bg-background/50 border-border/40 focus:border-primary/50 rounded-xl"
             id="hours-per-day"
@@ -147,11 +222,13 @@ export function StudyWorkspace() {
         </div>
       </section>
 
-      <section className="grid gap-8 md:grid-cols-2">
+      <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-3">
           <div className="flex items-center gap-2 pl-1">
             <div className="size-1.5 rounded-full bg-primary" />
-            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Summary</h3>
+            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
+              Summary
+            </h3>
           </div>
           <SummaryCard
             isLoading={loadingStep === "summary"}
@@ -161,11 +238,34 @@ export function StudyWorkspace() {
         <div className="space-y-3">
           <div className="flex items-center gap-2 pl-1">
             <div className="size-1.5 rounded-full bg-primary" />
-            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Roadmap</h3>
+            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
+              Roadmap
+            </h3>
           </div>
           <RoadmapView days={roadmap} isLoading={loadingStep === "roadmap"} />
         </div>
+        <div className="space-y-3 md:col-span-2 lg:col-span-1">
+          <div className="flex items-center gap-2 pl-1">
+            <div className="size-1.5 rounded-full bg-red-500" />
+            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
+              Panic mode
+            </h3>
+          </div>
+          <EmergencyPanel
+            isLoading={loadingStep === "emergency"}
+            plan={emergency}
+          />
+        </div>
       </section>
+
+      <Dialog onOpenChange={setQuizOpen} open={quizOpen}>
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Quiz session</DialogTitle>
+          </DialogHeader>
+          <QuizSession questions={quiz} summary={summary} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
