@@ -72,7 +72,12 @@ Each item needs: day (1-based index), date (YYYY-MM-DD between ${todayStr} and $
       }),
     });
 
-    const days = resolveRoadmapDays(object.days, examDate, hoursPerDay, todayStr);
+    const days = resolveRoadmapDays(
+      object.days,
+      examDate,
+      hoursPerDay,
+      todayStr
+    );
 
     if (days.length === 0) {
       return NextResponse.json(

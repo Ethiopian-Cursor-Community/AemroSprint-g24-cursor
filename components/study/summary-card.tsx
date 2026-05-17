@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { BrainIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SummaryJSON } from "@/lib/study/types";
 
@@ -42,7 +42,10 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
           {summary.courseName ?? "Course Analysis"}
         </h3>
         {summary.difficulty ? (
-          <Badge variant="outline" className="text-[10px] uppercase tracking-wider bg-primary/5 text-primary/80 border-primary/20 px-2 py-0">
+          <Badge
+            className="text-[10px] uppercase tracking-wider bg-primary/5 text-primary/80 border-primary/20 px-2 py-0"
+            variant="outline"
+          >
             {summary.difficulty}
           </Badge>
         ) : null}
@@ -55,7 +58,11 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
           </p>
           <div className="flex flex-wrap gap-2">
             {summary.topics.map((topic) => (
-              <Badge key={topic} variant="secondary" className="bg-secondary/40 hover:bg-secondary/60 text-foreground/80 border-border/10 rounded-lg px-2.5 py-0.5 text-[11px] font-medium transition-colors">
+              <Badge
+                className="bg-secondary/40 hover:bg-secondary/60 text-foreground/80 border-border/10 rounded-lg px-2.5 py-0.5 text-[11px] font-medium transition-colors"
+                key={topic}
+                variant="secondary"
+              >
                 {topic}
               </Badge>
             ))}
@@ -74,8 +81,13 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
                 className="flex justify-between items-center gap-3"
                 key={`${deadline.label}-${deadline.date}`}
               >
-                <span className="font-medium text-foreground/70 truncate">{deadline.label}</span>
-                <Badge variant="outline" className="shrink-0 bg-primary/5 text-primary/70 border-primary/10 text-[10px] font-mono">
+                <span className="font-medium text-foreground/70 truncate">
+                  {deadline.label}
+                </span>
+                <Badge
+                  className="shrink-0 bg-primary/5 text-primary/70 border-primary/10 text-[10px] font-mono"
+                  variant="outline"
+                >
                   {deadline.date}
                 </Badge>
               </li>
@@ -91,7 +103,7 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
           </p>
           <ul className="space-y-2 text-[13px] text-muted-foreground/80">
             {summary.learningObjectives.map((objective) => (
-              <li key={objective} className="flex gap-2 leading-relaxed">
+              <li className="flex gap-2 leading-relaxed" key={objective}>
                 <span className="text-primary mt-1">•</span>
                 <span>{objective}</span>
               </li>
@@ -102,4 +114,3 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
     </div>
   );
 }
-

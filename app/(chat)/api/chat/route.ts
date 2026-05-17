@@ -281,7 +281,7 @@ export async function POST(request: Request) {
           });
         }
       },
-      onError: (error) => {
+      onError: (_error) => {
         return "Oops, an error occurred!";
       },
     });
@@ -313,7 +313,6 @@ export async function POST(request: Request) {
     if (error instanceof ChatbotError) {
       return error.toResponse();
     }
-
 
     console.error("Unhandled error in chat API:", error, { vercelId });
     return new ChatbotError("offline:chat").toResponse();

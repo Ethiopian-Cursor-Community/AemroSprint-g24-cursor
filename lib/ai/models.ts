@@ -26,7 +26,8 @@ export const chatModels: ChatModel[] = [
     id: "gemini-2.5-flash",
     name: "Gemini 2.5 Flash",
     provider: "google",
-    description: "Extremely fast next-gen model with huge context (Ideal for study materials)",
+    description:
+      "Extremely fast next-gen model with huge context (Ideal for study materials)",
   },
   {
     id: "gemini-2.5-pro",
@@ -48,9 +49,7 @@ export const chatModels: ChatModel[] = [
   },
 ];
 
-export async function getCapabilities(): Promise<
-  Record<string, ModelCapabilities>
-> {
+export function getCapabilities(): Record<string, ModelCapabilities> {
   return Object.fromEntries(
     chatModels.map((model) => [
       model.id,
@@ -69,10 +68,8 @@ export type GatewayModelWithCapabilities = ChatModel & {
   capabilities: ModelCapabilities;
 };
 
-export async function getAllGatewayModels(): Promise<
-  GatewayModelWithCapabilities[]
-> {
-  const capabilities = await getCapabilities();
+export function getAllGatewayModels(): GatewayModelWithCapabilities[] {
+  const capabilities = getCapabilities();
   return chatModels.map((m) => ({
     ...m,
     capabilities: capabilities[m.id],

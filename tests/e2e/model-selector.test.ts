@@ -59,8 +59,12 @@ test.describe("Model Selector", () => {
       .first();
     await modelButton.click();
 
-    await expect(page.getByRole("option", { name: /Gemini 2\.5 Flash/i }).first()).toBeVisible();
-    await expect(page.getByRole("option", { name: /Gemini 2\.5 Pro/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole("option", { name: /Gemini 2\.5 Flash/i }).first()
+    ).toBeVisible();
+    await expect(
+      page.getByRole("option", { name: /Gemini 2\.5 Pro/i }).first()
+    ).toBeVisible();
   });
 
   test("can select a different model", async ({ page }) => {

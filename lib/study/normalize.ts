@@ -88,7 +88,10 @@ export function resolveRoadmapDays(
       tasks: template.tasks?.length
         ? template.tasks
         : [`Study session ${i + 1}`],
-      estimatedHours: Math.min(template.estimatedHours ?? hoursPerDay, hoursPerDay),
+      estimatedHours: Math.min(
+        template.estimatedHours ?? hoursPerDay,
+        hoursPerDay
+      ),
       priority: template.priority ?? "high",
     });
   }
@@ -104,7 +107,9 @@ type LooseQuizQuestion = {
   explanation: string;
 };
 
-export function normalizeQuizQuestions(raw: LooseQuizQuestion[]): QuizQuestion[] {
+export function normalizeQuizQuestions(
+  raw: LooseQuizQuestion[]
+): QuizQuestion[] {
   return raw.slice(0, 10).map((q, index) => {
     const options = [...q.options].slice(0, 4);
     while (options.length < 4) {

@@ -246,9 +246,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
           const err = (await res.json().catch(() => ({}))) as {
             error?: string;
           };
-          throw new Error(
-            err.error ?? `Emergency plan failed (${res.status})`
-          );
+          throw new Error(err.error ?? `Emergency plan failed (${res.status})`);
         }
 
         const data = (await res.json()) as EmergencyPlan;
