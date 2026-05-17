@@ -1,17 +1,30 @@
-import { Output, streamText, tool, type UIMessageStreamWriter } from "ai";
+import { tool, type UIMessageStreamWriter } from "ai";
 import type { Session } from "next-auth";
 import { z } from "zod";
+import { runCursorJson } from "@/lib/ai/cursor-agent";
 import { getDocumentById, saveSuggestions } from "@/lib/db/queries";
 import type { Suggestion } from "@/lib/db/schema";
 import type { ChatMessage } from "@/lib/types";
 import { generateUUID } from "@/lib/utils";
-import { getLanguageModel } from "../providers";
 
 type RequestSuggestionsProps = {
   session: Session;
   dataStream: UIMessageStreamWriter<ChatMessage>;
   modelId: string;
 };
+
+const suggestionsSchema = z.object({
+  suggestions: z
+    .array(
+      z.object({
+        originalSentence: z.string(),
+        suggestedSentence: z.string(),
+        description: z.string(),
+      })
+    )
+    .min(1)
+    .max(5),
+});
 
 export const requestSuggestions = ({
   session,
@@ -32,75 +45,55 @@ export const requestSuggestions = ({
       const document = await getDocumentById({ id: documentId });
 
       if (!document?.content) {
-        return {
-          error: "Document not found",
-        };
+        return { error: "Document not found" };
       }
 
       if (document.userId !== session.user?.id) {
         return { error: "Forbidden" };
       }
 
+      const prompt = `You are a writing assistant. Given the document below, offer up to 5 suggestions to improve it. Each suggestion must contain full sentences (not just individual words) and describe what changed and why.
+
+Return JSON matching this shape exactly:
+{
+  "suggestions": [
+    {
+      "originalSentence": string,
+      "suggestedSentence": string,
+      "description": string
+    }
+  ]
+}
+
+Document:
+${document.content}`;
+
+      const { data } = await runCursorJson(prompt, suggestionsSchema, {
+        modelId,
+      });
+
       const suggestions: Omit<
         Suggestion,
         "userId" | "createdAt" | "documentCreatedAt"
-      >[] = [];
+      >[] = data.suggestions.map((element) => ({
+        originalText: element.originalSentence,
+        suggestedText: element.suggestedSentence,
+        description: element.description,
+        id: generateUUID(),
+        documentId,
+        isResolved: false,
+      }));
 
-      const { partialOutputStream } = streamText({
-        model: getLanguageModel(modelId),
-        system:
-          "You are a writing assistant. Given a piece of writing, offer up to 5 suggestions to improve it. Each suggestion must contain full sentences, not just individual words. Describe what changed and why.",
-        prompt: document.content,
-        output: Output.array({
-          element: z.object({
-            originalSentence: z.string().describe("The original sentence"),
-            suggestedSentence: z.string().describe("The suggested sentence"),
-            description: z
-              .string()
-              .describe("The description of the suggestion"),
-          }),
-        }),
-      });
-
-      let processedCount = 0;
-      for await (const partialOutput of partialOutputStream) {
-        if (!partialOutput) {
-          continue;
-        }
-
-        for (let i = processedCount; i < partialOutput.length; i++) {
-          const element = partialOutput[i];
-          if (
-            !element?.originalSentence ||
-            !element?.suggestedSentence ||
-            !element?.description
-          ) {
-            continue;
-          }
-
-          const suggestion = {
-            originalText: element.originalSentence,
-            suggestedText: element.suggestedSentence,
-            description: element.description,
-            id: generateUUID(),
-            documentId,
-            isResolved: false,
-          };
-
-          dataStream.write({
-            type: "data-suggestion",
-            data: suggestion as Suggestion,
-            transient: true,
-          });
-
-          suggestions.push(suggestion);
-          processedCount++;
-        }
+      for (const suggestion of suggestions) {
+        dataStream.write({
+          type: "data-suggestion",
+          data: suggestion as Suggestion,
+          transient: true,
+        });
       }
 
       if (session.user?.id) {
         const userId = session.user.id;
-
         await saveSuggestions({
           suggestions: suggestions.map((suggestion) => ({
             ...suggestion,

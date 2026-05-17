@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/app/(auth)/auth";
-import { describeCursorError, runCursorPrompt } from "@/lib/study/cursor-sdk";
+import { describeCursorError, runCursorPrompt } from "@/lib/ai/cursor-agent";
 
 export const maxDuration = 60;
 
@@ -58,9 +58,7 @@ Keep it under 350 words. Use headings, bullet points, and short paragraphs.${con
     const { text, runtime } = await runCursorPrompt(prompt);
     return NextResponse.json({
       explanation: text,
-      provider: "cursor-sdk",
       runtime,
-      fellBack: false,
     });
   } catch (error) {
     const { message, status } = describeCursorError(error);

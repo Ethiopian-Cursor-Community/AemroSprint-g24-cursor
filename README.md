@@ -9,10 +9,10 @@
 ## 🌟 Key Features
 
 - **📂 Multi-Format Material Parser:** Drag and drop syllabus PDFs, paste raw course outlines, or upload lecture notes (supporting PDF and text files up to 5MB).
-- **📝 Intelligent Study Summaries:** Automatically extracts core learning objectives, key topics, major milestones, and important dates using Gemini structured generation.
+- **📝 Intelligent Study Summaries:** Automatically extracts core learning objectives, key topics, major milestones, and important dates using Cursor SDK agents.
 - **📅 Custom Study Roadmaps:** Generates a structured, day-by-day calendar countdown leading up to your exam, customized by your daily hour commitment.
-- **💬 Material-Grounded Study Chat:** (Integration in progress) A conversation panel powered by Gemini where you can ask follow-up questions directly grounded in your uploaded study material.
-- **🚨 Emergency Panic Cram Mode:** (Integration in progress) A high-intensity mode designed to maximize study efficiency during the final 24-48 hours before an exam.
+- **💬 Material-Grounded Study Chat:** A conversation panel powered by the Cursor SDK where you can ask follow-up questions directly grounded in your uploaded study material.
+- **🚨 Emergency Panic Cram Mode:** A high-intensity mode that uses the Cursor SDK to build a brutally prioritized cram plan for the final 24-48 hours before an exam.
 
 ---
 
@@ -42,12 +42,15 @@ We created the academic **"AemroSprint"** product layer on top of the generic ch
 ## 🏗️ Technology Stack
 
 - **Framework:** [Next.js 16 (App Router)](https://nextjs.org/) + [React 19](https://react.dev/)
-- **AI Integration:** [Vercel AI SDK Core](https://sdk.vercel.ai/docs) (`generateObject` for strict structured output and `streamObject` for fluid UI rendering)
-- **AI Model Provider:** [Google Generative AI](https://github.com/vercel/ai/tree/main/packages/google) leveraging Gemini family models:
-  - `gemini-2.5-flash` (Primary fast model for general study interaction)
-  - `gemini-2.5-pro` (For deep analytical reasoning and logical breakdown)
-  - `gemini-2.0-flash` (For real-time responses)
-  - `gemini-3-flash-preview` (Experimental cutting-edge preview model)
+- **AI Integration:** [Cursor TypeScript SDK (`@cursor/sdk`)](https://cursor.com/docs/api/sdk/typescript) end-to-end. Every AI call — chat streaming, title generation, structured study summaries, roadmaps, quizzes, emergency cram plans, deep dives, and artifact generation — goes through a single wrapper at [`lib/ai/cursor-agent.ts`](lib/ai/cursor-agent.ts):
+  - `runCursorPrompt` — one-shot text generation (`Agent.prompt`) for titles and deep dives
+  - `runCursorJson` — schema-validated JSON via Zod with parse-and-retry for summaries, roadmaps, quizzes, and emergency plans
+  - `streamCursorChat` — incremental text deltas (`Agent.create` + `agent.send` + `run.stream`) for the chat route and artifact streamers
+- **AI Models:** Selectable Cursor-hosted models exposed through the in-app model selector:
+  - `composer-2` (Cursor's default agentic model — best balance of quality and latency)
+  - `composer-2-fast` (faster, lower-latency Composer 2 variant)
+  - `auto` (let Cursor pick the best available model per request)
+- **AI Runtime:** Local Cursor agent on dev machines (fast, free), Cursor cloud agents on Vercel (read-only filesystem requires cloud mode). Auto-selected by [`getCursorRuntime`](lib/ai/cursor-agent.ts) based on `VERCEL=1` or the `CURSOR_SDK_RUNTIME` env override.
 - **Database & ORM:** [Drizzle ORM](https://orm.drizzle.team/) + [PostgreSQL](https://www.postgresql.org/) (Neon / Serverless Postgres)
 - **Authentication:** [Auth.js v5 Beta (NextAuth)](https://authjs.dev/) supporting guest credentials and email login.
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) with PostCSS & CSS Variables for fluid modern aesthetics.
@@ -67,7 +70,7 @@ Before starting, ensure you have the following installed:
 - **Node.js** (v18.x or higher)
 - **pnpm** (v10.x recommended, or npm/yarn)
 - A running **PostgreSQL database** (local or serverless Neon instance)
-- A **Google Gemini API Key** (available for free in the Google AI Studio)
+- A **Cursor API Key** (mint one at the [Cursor Cloud Agents dashboard](https://cursor.com/dashboard/cloud-agents))
 
 ---
 
@@ -98,21 +101,9 @@ Open `.env.local` in your text editor and fill in the necessary variables:
 # Generate one using: openssl rand -base64 32
 AUTH_SECRET=your_auth_secret_here
 
-# Your Gemini API Key from Google AI Studio
-GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key_here
-
-# PostgreSQL connection string (Neon or local PostgreSQL instance)
-# Example: postgresql://username:password@localhost:5432/aemrosprint
-POSTGRES_URL=your_postgres_connection_string_here
-
-# Optional: Required for chat image uploads (Vercel Blob storage)
-BLOB_READ_WRITE_TOKEN=your_blob_token_if_applicable
-
-# Optional: Redis connection string (for resumable streams)
-REDIS_URL=your_redis_connection_string_if_applicable
-
-# Cursor SDK — powers the "Deep Dive" topic explanation feature.
-# Required.
+# Cursor API key — powers EVERY AI-generated response in the app (chat,
+# summaries, roadmaps, quizzes, emergency plans, deep dives, artifacts).
+# Mint one at https://cursor.com/dashboard/cloud-agents
 CURSOR_API_KEY=your_cursor_api_key_here
 
 # Cursor SDK runtime. "local" works on dev machines; use "cloud" on Vercel
@@ -123,21 +114,34 @@ CURSOR_SDK_RUNTIME=local
 # Only required when CURSOR_SDK_RUNTIME=cloud. The cloud agent clones this
 # repo to run against. Point it at this app's GitHub URL.
 CURSOR_SDK_REPO_URL=https://github.com/Ethiopian-Cursor-Community/AemroSprint-g24-cursor.git
+
+# PostgreSQL connection string (Neon or local PostgreSQL instance)
+# Example: postgresql://username:password@localhost:5432/aemrosprint
+POSTGRES_URL=your_postgres_connection_string_here
+
+# Optional: Required for chat image uploads (Vercel Blob storage)
+BLOB_READ_WRITE_TOKEN=your_blob_token_if_applicable
+
+# Optional: Redis connection string (for resumable streams)
+REDIS_URL=your_redis_connection_string_if_applicable
 ```
 
 #### Production deployment note (Cursor SDK)
 
-The Deep Dive feature uses `@cursor/sdk`'s `Agent.prompt`. On a dev machine
-this runs **locally** against your working directory. On **Vercel** (or any
-serverless platform with a read-only filesystem) you must switch to
-**cloud** mode:
+Every AI feature in AemroSprint runs through `@cursor/sdk`. On a dev machine
+the SDK runs **locally** against your working directory; on **Vercel** (or
+any serverless platform with a read-only filesystem) you must run in
+**cloud** mode so the agent runs on Cursor-hosted infrastructure against a
+freshly cloned copy of this repo:
 
 1. Set `CURSOR_SDK_RUNTIME=cloud` (or rely on the `VERCEL=1` auto-default).
 2. Set `CURSOR_SDK_REPO_URL` to the repo's HTTPS URL.
 3. Make sure the Cursor API key has access to that repo.
 
-Cloud agents take ~15–30s per request (the repo is cloned for each call),
-so this feature should only be reached via explicit user action.
+Cloud agents take longer than a hosted-model API call (the repo is cloned
+per request), so latency-sensitive paths like title generation will feel
+heavier than a traditional chat backend. This is the explicit trade-off for
+running the entire AI stack through one SDK.
 
 #### 4. Run Database Migrations
 Generate and run the PostgreSQL migrations using Drizzle to set up the users and chat tables:

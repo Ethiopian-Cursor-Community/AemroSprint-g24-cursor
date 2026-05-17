@@ -1,10 +1,10 @@
-export const DEFAULT_CHAT_MODEL = "gemini-2.5-flash";
+export const DEFAULT_CHAT_MODEL = "composer-2";
 
 export const titleModel = {
-  id: "gemini-2.5-flash",
-  name: "Gemini 2.5 Flash",
-  provider: "google",
-  description: "Fast model for title generation",
+  id: "composer-2",
+  name: "Composer 2",
+  provider: "cursor",
+  description: "Cursor-hosted default model used for short generations",
 };
 
 export type ModelCapabilities = {
@@ -23,29 +23,23 @@ export type ChatModel = {
 
 export const chatModels: ChatModel[] = [
   {
-    id: "gemini-2.5-flash",
-    name: "Gemini 2.5 Flash",
-    provider: "google",
+    id: "composer-2",
+    name: "Cursor Composer 2",
+    provider: "cursor",
     description:
-      "Extremely fast next-gen model with huge context (Ideal for study materials)",
+      "Cursor's default agentic model — best balance of quality and latency for study help",
   },
   {
-    id: "gemini-2.5-pro",
-    name: "Gemini 2.5 Pro",
-    provider: "google",
-    description: "State-of-the-art model for complex logic and deep analysis",
+    id: "composer-2-fast",
+    name: "Cursor Composer 2 Fast",
+    provider: "cursor",
+    description: "Faster, lower-latency Composer 2 variant for quick answers",
   },
   {
-    id: "gemini-2.0-flash",
-    name: "Gemini 2.0 Flash",
-    provider: "google",
-    description: "Highly responsive model for real-time study help",
-  },
-  {
-    id: "gemini-3-flash-preview",
-    name: "Gemini 3 Flash (Preview)",
-    provider: "google",
-    description: "Latest experimental model for cutting-edge capabilities",
+    id: "auto",
+    name: "Cursor Auto",
+    provider: "cursor",
+    description: "Let Cursor pick the best available model for each request",
   },
 ];
 
@@ -54,9 +48,9 @@ export function getCapabilities(): Record<string, ModelCapabilities> {
     chatModels.map((model) => [
       model.id,
       {
-        tools: true,
-        vision: true,
-        reasoning: model.id.includes("pro") || model.id.includes("3"),
+        tools: false,
+        vision: false,
+        reasoning: false,
       },
     ])
   );

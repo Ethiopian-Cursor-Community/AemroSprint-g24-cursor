@@ -1,6 +1,5 @@
-import { smoothStream, streamText } from "ai";
+import { streamCursorChat } from "@/lib/ai/cursor-agent";
 import { updateDocumentPrompt } from "@/lib/ai/prompts";
-import { getLanguageModel } from "@/lib/ai/providers";
 import { createDocumentHandler } from "@/lib/artifacts/server";
 
 export const textDocumentHandler = createDocumentHandler<"text">({
@@ -8,20 +7,17 @@ export const textDocumentHandler = createDocumentHandler<"text">({
   onCreateDocument: async ({ title, dataStream, modelId }) => {
     let draftContent = "";
 
-    const { fullStream } = streamText({
-      model: getLanguageModel(modelId),
+    for await (const chunk of streamCursorChat({
       system:
         "Write about the given topic. Markdown is supported. Use headings wherever appropriate.",
-      experimental_transform: smoothStream({ chunking: "word" }),
-      prompt: title,
-    });
-
-    for await (const delta of fullStream) {
-      if (delta.type === "text-delta") {
-        draftContent += delta.text;
+      userMessage: title,
+      modelId,
+    })) {
+      if (chunk.type === "text-delta") {
+        draftContent += chunk.delta;
         dataStream.write({
           type: "data-textDelta",
-          data: delta.text,
+          data: chunk.delta,
           transient: true,
         });
       }
@@ -32,19 +28,16 @@ export const textDocumentHandler = createDocumentHandler<"text">({
   onUpdateDocument: async ({ document, description, dataStream, modelId }) => {
     let draftContent = "";
 
-    const { fullStream } = streamText({
-      model: getLanguageModel(modelId),
+    for await (const chunk of streamCursorChat({
       system: updateDocumentPrompt(document.content, "text"),
-      experimental_transform: smoothStream({ chunking: "word" }),
-      prompt: description,
-    });
-
-    for await (const delta of fullStream) {
-      if (delta.type === "text-delta") {
-        draftContent += delta.text;
+      userMessage: description,
+      modelId,
+    })) {
+      if (chunk.type === "text-delta") {
+        draftContent += chunk.delta;
         dataStream.write({
           type: "data-textDelta",
-          data: delta.text,
+          data: chunk.delta,
           transient: true,
         });
       }

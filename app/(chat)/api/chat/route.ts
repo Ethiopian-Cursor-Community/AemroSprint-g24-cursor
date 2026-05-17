@@ -1,30 +1,17 @@
 import { geolocation, ipAddress } from "@vercel/functions";
 import {
-  convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
   generateId,
-  stepCountIs,
-  streamText,
 } from "ai";
 import { checkBotId } from "botid/server";
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
 import { auth, type UserType } from "@/app/(auth)/auth";
+import { streamCursorChat } from "@/lib/ai/cursor-agent";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
-import {
-  allowedModelIds,
-  chatModels,
-  DEFAULT_CHAT_MODEL,
-  getCapabilities,
-} from "@/lib/ai/models";
+import { allowedModelIds, DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
-import { getLanguageModel } from "@/lib/ai/providers";
-import { createDocument } from "@/lib/ai/tools/create-document";
-import { editDocument } from "@/lib/ai/tools/edit-document";
-import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
-import { updateDocument } from "@/lib/ai/tools/update-document";
-import { isProductionEnvironment } from "@/lib/constants";
 import {
   createStreamId,
   deleteChatById,
@@ -34,13 +21,16 @@ import {
   saveChat,
   saveMessages,
   updateChatTitleById,
-  updateMessage,
 } from "@/lib/db/queries";
 import type { DBMessage } from "@/lib/db/schema";
 import { ChatbotError } from "@/lib/errors";
 import { checkIpRateLimit } from "@/lib/ratelimit";
 import type { ChatMessage } from "@/lib/types";
-import { convertToUIMessages, generateUUID } from "@/lib/utils";
+import {
+  convertToUIMessages,
+  generateUUID,
+  getTextFromMessage,
+} from "@/lib/utils";
 import { generateTitleFromUserMessage } from "../../actions";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
 
@@ -70,7 +60,6 @@ export async function POST(request: Request) {
     const {
       id,
       message,
-      messages,
       selectedChatModel,
       selectedVisibilityType,
       studyContext,
@@ -102,8 +91,6 @@ export async function POST(request: Request) {
       return new ChatbotError("rate_limit:chat").toResponse();
     }
 
-    const isToolApprovalFlow = Boolean(messages);
-
     const chat = await getChatById({ id });
     let messagesFromDb: DBMessage[] = [];
     let titlePromise: Promise<string> | null = null;
@@ -123,43 +110,10 @@ export async function POST(request: Request) {
       titlePromise = generateTitleFromUserMessage({ message });
     }
 
-    let uiMessages: ChatMessage[];
-
-    if (isToolApprovalFlow && messages) {
-      const dbMessages = convertToUIMessages(messagesFromDb);
-      const approvalStates = new Map(
-        messages.flatMap(
-          (m) =>
-            m.parts
-              ?.filter(
-                (p: Record<string, unknown>) =>
-                  p.state === "approval-responded" ||
-                  p.state === "output-denied"
-              )
-              .map((p: Record<string, unknown>) => [
-                String(p.toolCallId ?? ""),
-                p,
-              ]) ?? []
-        )
-      );
-      uiMessages = dbMessages.map((msg) => ({
-        ...msg,
-        parts: msg.parts.map((part) => {
-          if (
-            "toolCallId" in part &&
-            approvalStates.has(String(part.toolCallId))
-          ) {
-            return { ...part, ...approvalStates.get(String(part.toolCallId)) };
-          }
-          return part;
-        }),
-      })) as ChatMessage[];
-    } else {
-      uiMessages = [
-        ...convertToUIMessages(messagesFromDb),
-        message as ChatMessage,
-      ];
-    }
+    const uiMessages: ChatMessage[] = [
+      ...convertToUIMessages(messagesFromDb),
+      message as ChatMessage,
+    ];
 
     const { longitude, latitude, city, country } = geolocation(request);
 
@@ -185,108 +139,92 @@ export async function POST(request: Request) {
       });
     }
 
-    const modelConfig = chatModels.find((m) => m.id === chatModel);
-    const modelCapabilities = getCapabilities();
-    const capabilities = modelCapabilities[chatModel];
-    const isReasoningModel = capabilities?.reasoning === true;
-    const supportsTools = capabilities?.tools === true;
+    const system = systemPrompt({
+      requestHints,
+      supportsTools: false,
+      studyContext,
+    });
 
-    const modelMessages = await convertToModelMessages(uiMessages);
+    const history = uiMessages
+      .slice(0, -1)
+      .map((m) => ({
+        role: (m.role === "assistant" ? "assistant" : "user") as
+          | "user"
+          | "assistant",
+        content: getTextFromMessage(m),
+      }))
+      .filter((m) => m.content.trim().length > 0);
 
-    const stream = createUIMessageStream({
-      originalMessages: isToolApprovalFlow ? uiMessages : undefined,
+    const userMessageText = message ? getTextFromMessage(message) : "";
+
+    const stream = createUIMessageStream<ChatMessage>({
       execute: async ({ writer: dataStream }) => {
-        const result = streamText({
-          model: getLanguageModel(chatModel),
-          system: systemPrompt({ requestHints, supportsTools, studyContext }),
-          messages: modelMessages,
-          stopWhen: stepCountIs(5),
-          experimental_activeTools:
-            isReasoningModel && !supportsTools
-              ? []
-              : [
-                  "createDocument",
-                  "editDocument",
-                  "updateDocument",
-                  "requestSuggestions",
-                ],
-          providerOptions: {
-            ...(modelConfig?.reasoningEffort && {
-              openai: { reasoningEffort: modelConfig.reasoningEffort },
-            }),
-          },
-          tools: {
-            createDocument: createDocument({
-              session,
-              dataStream,
-              modelId: chatModel,
-            }),
-            editDocument: editDocument({ dataStream, session }),
-            updateDocument: updateDocument({
-              session,
-              dataStream,
-              modelId: chatModel,
-            }),
-            requestSuggestions: requestSuggestions({
-              session,
-              dataStream,
-              modelId: chatModel,
-            }),
-          },
-          experimental_telemetry: {
-            isEnabled: isProductionEnvironment,
-            functionId: "stream-text",
-          },
+        const assistantMessageId = generateUUID();
+        const textPartId = generateUUID();
+
+        dataStream.write({ type: "start" });
+        dataStream.write({
+          type: "start-step",
+        });
+        dataStream.write({
+          type: "text-start",
+          id: textPartId,
         });
 
-        dataStream.merge(
-          result.toUIMessageStream({ sendReasoning: isReasoningModel })
-        );
+        let fullText = "";
 
-        if (titlePromise) {
-          const title = await titlePromise;
-          dataStream.write({ type: "data-chat-title", data: title });
-          updateChatTitleById({ chatId: id, title });
-        }
-      },
-      generateId: generateUUID,
-      onFinish: async ({ messages: finishedMessages }) => {
-        if (isToolApprovalFlow) {
-          for (const finishedMsg of finishedMessages) {
-            const existingMsg = uiMessages.find((m) => m.id === finishedMsg.id);
-            if (existingMsg) {
-              await updateMessage({
-                id: finishedMsg.id,
-                parts: finishedMsg.parts,
-              });
-            } else {
-              await saveMessages({
-                messages: [
-                  {
-                    id: finishedMsg.id,
-                    role: finishedMsg.role,
-                    parts: finishedMsg.parts,
-                    createdAt: new Date(),
-                    attachments: [],
-                    chatId: id,
-                  },
-                ],
+        try {
+          for await (const chunk of streamCursorChat({
+            system,
+            history,
+            userMessage: userMessageText,
+            modelId: chatModel,
+            signal: request.signal,
+          })) {
+            if (chunk.type === "text-delta") {
+              fullText += chunk.delta;
+              dataStream.write({
+                type: "text-delta",
+                id: textPartId,
+                delta: chunk.delta,
               });
             }
           }
-        } else if (finishedMessages.length > 0) {
+        } finally {
+          dataStream.write({
+            type: "text-end",
+            id: textPartId,
+          });
+          dataStream.write({ type: "finish-step" });
+          dataStream.write({ type: "finish" });
+        }
+
+        if (titlePromise) {
+          try {
+            const title = await titlePromise;
+            dataStream.write({ type: "data-chat-title", data: title });
+            await updateChatTitleById({ chatId: id, title });
+          } catch (titleError) {
+            console.error("Title generation failed:", titleError);
+          }
+        }
+
+        if (fullText.trim().length > 0) {
           await saveMessages({
-            messages: finishedMessages.map((currentMessage) => ({
-              id: currentMessage.id,
-              role: currentMessage.role,
-              parts: currentMessage.parts,
-              createdAt: new Date(),
-              attachments: [],
-              chatId: id,
-            })),
+            messages: [
+              {
+                id: assistantMessageId,
+                role: "assistant",
+                parts: [{ type: "text", text: fullText }],
+                createdAt: new Date(),
+                attachments: [],
+                chatId: id,
+              },
+            ],
           });
         }
       },
+      generateId: generateUUID,
       onError: (_error) => {
         return "Oops, an error occurred!";
       },

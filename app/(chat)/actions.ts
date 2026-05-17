@@ -1,11 +1,11 @@
 "use server";
 
-import { generateText, type UIMessage } from "ai";
+import type { UIMessage } from "ai";
 import { cookies } from "next/headers";
 import { auth } from "@/app/(auth)/auth";
 import type { VisibilityType } from "@/components/chat/visibility-selector";
+import { runCursorPrompt } from "@/lib/ai/cursor-agent";
 import { titlePrompt } from "@/lib/ai/prompts";
-import { getTitleModel } from "@/lib/ai/providers";
 import {
   deleteMessagesByChatIdAfterTimestamp,
   getChatById,
@@ -24,15 +24,18 @@ export async function generateTitleFromUserMessage({
 }: {
   message: UIMessage;
 }) {
-  const { text } = await generateText({
-    model: getTitleModel(),
-    system: titlePrompt,
-    prompt: getTextFromMessage(message),
-  });
-  return text
-    .replace(/^[#*"\s]+/, "")
-    .replace(/["]+$/, "")
-    .trim();
+  const userText = getTextFromMessage(message);
+  const prompt = `${titlePrompt}\n\nUser message:\n${userText}`;
+  try {
+    const { text } = await runCursorPrompt(prompt);
+    return text
+      .replace(/^[#*"\s]+/, "")
+      .replace(/["]+$/, "")
+      .trim();
+  } catch (error) {
+    console.error("Title generation failed:", error);
+    return "New chat";
+  }
 }
 
 export async function deleteTrailingMessages({ id }: { id: string }) {

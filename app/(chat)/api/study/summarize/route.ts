@@ -1,10 +1,10 @@
-import { generateObject } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/app/(auth)/auth";
-import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
-import { getLanguageModel } from "@/lib/ai/providers";
+import { describeCursorError, runCursorJson } from "@/lib/ai/cursor-agent";
 import { summaryJsonSchema, truncateStudyText } from "@/lib/study/types";
+
+export const maxDuration = 60;
 
 const bodySchema = z.object({
   text: z.string().min(1),
@@ -17,34 +17,41 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim()) {
+  let body: z.infer<typeof bodySchema>;
+  try {
+    body = bodySchema.parse(await request.json());
+  } catch {
     return NextResponse.json(
-      { error: "GOOGLE_GENERATIVE_AI_API_KEY is not configured" },
-      { status: 500 }
+      { error: "Invalid request body" },
+      { status: 400 }
     );
   }
 
+  const { text } = body;
+  const { text: trimmed } = truncateStudyText(text);
+
+  const prompt = `You are an academic analyst. Extract structured study intelligence from the syllabus or course notes below.
+
+Identify the course name, key topics, deadlines (with labels), learning objectives, and overall difficulty. Be specific and practical. Use ISO dates (YYYY-MM-DD) when possible.
+
+Return JSON matching this shape exactly:
+{
+  "courseName": string | undefined,
+  "topics": string[],
+  "deadlines": { "label": string, "date": string }[],
+  "learningObjectives": string[],
+  "difficulty": string | undefined
+}
+
+Course notes:
+${trimmed}`;
+
   try {
-    const json = await request.json();
-    const { text } = bodySchema.parse(json);
-    const { text: trimmed } = truncateStudyText(text);
-
-    const { object } = await generateObject({
-      model: getLanguageModel(DEFAULT_CHAT_MODEL),
-      schema: summaryJsonSchema,
-      system: `You are an academic analyst. Extract structured study intelligence from syllabus or course notes.
-Identify course name, key topics, deadlines with labels, and learning objectives.
-Be specific and practical. Use ISO dates (YYYY-MM-DD) when possible.`,
-      prompt: trimmed,
-    });
-
-    return NextResponse.json(object);
+    const { data } = await runCursorJson(prompt, summaryJsonSchema);
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Summary extraction failed:", error);
-    console.error("Summary extraction failed with error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate summary" },
-      { status: 500 }
-    );
+    const { message, status } = describeCursorError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }
