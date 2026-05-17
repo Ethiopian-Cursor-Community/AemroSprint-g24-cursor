@@ -111,7 +111,7 @@ Be highly concise in your descriptions to keep generation extremely fast and pre
     });
 
     return NextResponse.json(object);
-  } catch (error) {
+  }; catch (error) {
     console.error("Roadmap generation failed with error:", error);
     return NextResponse.json(
       { error: "Failed to generate roadmap" },
