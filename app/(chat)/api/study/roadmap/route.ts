@@ -126,13 +126,12 @@ Be highly concise in your descriptions to keep generation extremely fast and pre
         prompt: JSON.stringify({ summary, examDate, hoursPerDay, today: backupTodayStr }),
       });
 
-      return NextResponse.json(object);
-    } catch (innerError) {
-      console.error("Backup roadmap generation failed with error:", innerError);
-      return NextResponse.json(
-        { error: "Failed to generate roadmap" },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json(object);
+  }; catch (error) {
+    console.error("Roadmap generation failed with error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate roadmap" },
+      { status: 500 }
+    );
   }
 }
