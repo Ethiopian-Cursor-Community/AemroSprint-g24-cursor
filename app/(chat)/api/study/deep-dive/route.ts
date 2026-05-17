@@ -1,7 +1,7 @@
-import { Agent, CursorAgentError } from "@cursor/sdk";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/app/(auth)/auth";
+import { describeCursorError, runCursorPrompt } from "@/lib/study/cursor-sdk";
 
 export const maxDuration = 60;
 
@@ -16,13 +16,6 @@ export async function POST(request: Request) {
 
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (!process.env.CURSOR_API_KEY?.trim()) {
-    return NextResponse.json(
-      { error: "CURSOR_API_KEY is not configured" },
-      { status: 500 }
-    );
   }
 
   let body: z.infer<typeof bodySchema>;
@@ -62,43 +55,15 @@ Structure:
 Keep it under 350 words. Use headings, bullet points, and short paragraphs.${contextBlock}`;
 
   try {
-    const result = await Agent.prompt(prompt, {
-      apiKey: process.env.CURSOR_API_KEY,
-      model: { id: "composer-2" },
-      local: { cwd: process.cwd() },
+    const { text, runtime } = await runCursorPrompt(prompt);
+    return NextResponse.json({
+      explanation: text,
+      provider: "cursor-sdk",
+      runtime,
+      fellBack: false,
     });
-
-    if (result.status !== "finished") {
-      return NextResponse.json(
-        { error: `Deep dive failed (status: ${result.status})` },
-        { status: 500 }
-      );
-    }
-
-    const explanation = result.result?.trim();
-    if (!explanation) {
-      return NextResponse.json(
-        { error: "Deep dive returned an empty answer" },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ explanation });
   } catch (error) {
-    if (error instanceof CursorAgentError) {
-      return NextResponse.json(
-        {
-          error: error.isRetryable
-            ? "Cursor SDK is temporarily unavailable, please try again"
-            : `Cursor SDK error: ${error.message}`,
-        },
-        { status: 502 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Failed to generate deep dive" },
-      { status: 500 }
-    );
+    const { message, status } = describeCursorError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }

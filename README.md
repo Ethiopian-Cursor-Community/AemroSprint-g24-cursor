@@ -110,7 +110,34 @@ BLOB_READ_WRITE_TOKEN=your_blob_token_if_applicable
 
 # Optional: Redis connection string (for resumable streams)
 REDIS_URL=your_redis_connection_string_if_applicable
+
+# Cursor SDK — powers the "Deep Dive" topic explanation feature.
+# Required.
+CURSOR_API_KEY=your_cursor_api_key_here
+
+# Cursor SDK runtime. "local" works on dev machines; use "cloud" on Vercel
+# (the serverless filesystem is read-only, so local agents can't run there).
+# Auto-detects "cloud" when VERCEL=1, otherwise "local".
+CURSOR_SDK_RUNTIME=local
+
+# Only required when CURSOR_SDK_RUNTIME=cloud. The cloud agent clones this
+# repo to run against. Point it at this app's GitHub URL.
+CURSOR_SDK_REPO_URL=https://github.com/Ethiopian-Cursor-Community/AemroSprint-g24-cursor.git
 ```
+
+#### Production deployment note (Cursor SDK)
+
+The Deep Dive feature uses `@cursor/sdk`'s `Agent.prompt`. On a dev machine
+this runs **locally** against your working directory. On **Vercel** (or any
+serverless platform with a read-only filesystem) you must switch to
+**cloud** mode:
+
+1. Set `CURSOR_SDK_RUNTIME=cloud` (or rely on the `VERCEL=1` auto-default).
+2. Set `CURSOR_SDK_REPO_URL` to the repo's HTTPS URL.
+3. Make sure the Cursor API key has access to that repo.
+
+Cloud agents take ~15–30s per request (the repo is cloned for each call),
+so this feature should only be reached via explicit user action.
 
 #### 4. Run Database Migrations
 Generate and run the PostgreSQL migrations using Drizzle to set up the users and chat tables:

@@ -22,17 +22,29 @@ type SummaryCardProps = {
 
 const basePath = () => process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
+type DeepDiveProvider = "cursor-sdk" | "gemini";
+
+const providerLabel: Record<DeepDiveProvider, string> = {
+  "cursor-sdk": "Powered by the Cursor SDK",
+  gemini: "Powered by Gemini",
+};
+
 export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
   const [deepDiveTopic, setDeepDiveTopic] = useState<string | null>(null);
   const [deepDiveLoading, setDeepDiveLoading] = useState(false);
   const [deepDiveContent, setDeepDiveContent] = useState("");
   const [deepDiveError, setDeepDiveError] = useState<string | null>(null);
+  const [deepDiveProvider, setDeepDiveProvider] =
+    useState<DeepDiveProvider | null>(null);
+  const [deepDiveFellBack, setDeepDiveFellBack] = useState(false);
 
   const openDeepDive = useCallback(
     async (topic: string) => {
       setDeepDiveTopic(topic);
       setDeepDiveContent("");
       setDeepDiveError(null);
+      setDeepDiveProvider(null);
+      setDeepDiveFellBack(false);
       setDeepDiveLoading(true);
 
       try {
@@ -53,8 +65,14 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
           throw new Error(err.error ?? `Deep dive failed (${res.status})`);
         }
 
-        const data = (await res.json()) as { explanation: string };
+        const data = (await res.json()) as {
+          explanation: string;
+          provider: DeepDiveProvider;
+          fellBack?: boolean;
+        };
         setDeepDiveContent(data.explanation);
+        setDeepDiveProvider(data.provider);
+        setDeepDiveFellBack(Boolean(data.fellBack));
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Deep dive failed";
@@ -73,6 +91,8 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
       setDeepDiveContent("");
       setDeepDiveError(null);
       setDeepDiveLoading(false);
+      setDeepDiveProvider(null);
+      setDeepDiveFellBack(false);
     }
   }, []);
 
@@ -194,8 +214,13 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
               Deep Dive: {deepDiveTopic}
             </DialogTitle>
             <DialogDescription>
-              Powered by the Cursor SDK — exam-focused explanation tailored to
-              your course.
+              {deepDiveProvider
+                ? `${providerLabel[deepDiveProvider]}${
+                    deepDiveFellBack
+                      ? " (Cursor SDK unavailable, fell back)"
+                      : ""
+                  } — exam-focused explanation tailored to your course.`
+                : "Generating an exam-focused explanation tailored to your course."}
             </DialogDescription>
           </DialogHeader>
 
@@ -207,7 +232,7 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
               <Skeleton className="h-4 w-4/6 rounded-md bg-muted/40" />
               <Skeleton className="h-4 w-3/4 rounded-md bg-muted/40" />
               <p className="text-center text-muted-foreground text-xs italic">
-                Cursor agent is thinking…
+                Generating your deep dive…
               </p>
             </div>
           ) : null}
