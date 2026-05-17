@@ -10,7 +10,9 @@ export const Greeting = () => {
         transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="size-1 w-[24px] rounded-full bg-primary" />
-        <span className="font-bold text-xs uppercase tracking-[0.3em] text-primary/80">AemroSprint</span>
+        <span className="font-bold text-xs uppercase tracking-[0.3em] text-primary/80">
+          AemroSprint
+        </span>
         <div className="size-1 w-[24px] rounded-full bg-primary" />
       </motion.div>
       <motion.div
@@ -27,7 +29,7 @@ export const Greeting = () => {
         initial={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.5, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
-        Upload a syllabus or study notes, get a structured roadmap, test your knowledge, and study smarter with AI.
+        Upload a syllabus or study notes, get a structured study roadmap, quiz yourself, and master your courses with AI.
       </motion.div>
     </div>
   );

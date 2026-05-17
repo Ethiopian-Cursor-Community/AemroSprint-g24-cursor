@@ -1,16 +1,20 @@
-import { generateObject } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/app/(auth)/auth";
-import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
-import { getLanguageModel } from "@/lib/ai/providers";
+import { describeCursorError, runCursorJson } from "@/lib/ai/cursor-agent";
 import {
   getDaysUntilExam,
   getExpectedRoadmapDayCount,
   getTodayDateString,
   resolveRoadmapDays,
 } from "@/lib/study/normalize";
-import { roadmapDaySchema, summaryJsonSchema } from "@/lib/study/types";
+import {
+  roadmapDaySchema,
+  type SummaryJSON,
+  summaryJsonSchema,
+} from "@/lib/study/types";
+
+export const maxDuration = 60;
 
 const bodySchema = z.object({
   summary: summaryJsonSchema,
@@ -25,16 +29,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.CURSOR_API_KEY?.trim()) {
-    return NextResponse.json(
-      { error: "CURSOR_API_KEY is not configured" },
-      { status: 500 }
-    );
-  }
-
-  let summary: any;
-  let examDate: string = "";
-  let hoursPerDay: number = 3;
+  let summary: SummaryJSON;
+  let examDate = "";
+  let hoursPerDay = 3;
 
   try {
     const json = await request.json();
@@ -58,36 +55,52 @@ export async function POST(request: Request) {
     days: z.array(roadmapDaySchema).min(1).max(Math.max(expectedCount, 3)),
   });
 
-  try {
-    let planningInstruction: string;
-    if (diffDays > 10) {
-      planningInstruction = `The exam is ${diffDays} calendar days away (${todayStr} to ${examDate}). Output at most ${expectedCount} evenly spaced study checkpoints between those dates only — not one entry per distant syllabus deadline.`;
-    } else if (diffDays <= 0) {
-      planningInstruction = `The exam is today or past (${examDate}). Output 1–3 cram sessions dated ${todayStr} only.`;
-    } else {
-      planningInstruction = `The exam is ${diffDays} calendar day(s) away. Output exactly ${expectedCount} study day(s) with consecutive dates from ${todayStr} through ${examDate}. Ignore semester deadlines in the summary — only plan for exam date ${examDate}.`;
-    }
+  let planningInstruction: string;
+  if (diffDays > 10) {
+    planningInstruction = `The exam is ${diffDays} calendar days away (${todayStr} to ${examDate}). Output at most ${expectedCount} evenly spaced study checkpoints between those dates only — not one entry per distant syllabus deadline.`;
+  } else if (diffDays <= 0) {
+    planningInstruction = `The exam is today or past (${examDate}). Output 1-3 cram sessions dated ${todayStr} only.`;
+  } else {
+    planningInstruction = `The exam is ${diffDays} calendar day(s) away. Output exactly ${expectedCount} study day(s) with consecutive dates from ${todayStr} through ${examDate}. Ignore semester deadlines in the summary — only plan for exam date ${examDate}.`;
+  }
 
-    const { object } = await generateObject({
-      model: getLanguageModel(DEFAULT_CHAT_MODEL),
-      schema: roadmapResponseSchema,
-      temperature: 0.2,
-      system: `You are a study planner. Build a practical roadmap for the student's EXAM DATE only.
+  const buildPrompt =
+    () => `You are a study planner. Build a practical roadmap for the student's EXAM DATE only.
+
 TODAY: ${todayStr}
 EXAM_DATE: ${examDate}
 HOURS_PER_DAY: ${hoursPerDay}
 ${planningInstruction}
-Each item needs: day (1-based index), date (YYYY-MM-DD between ${todayStr} and ${examDate}), topics, specific tasks, estimatedHours (<= ${hoursPerDay}), priority (critical|high|medium).`,
-      prompt: JSON.stringify({
-        summary,
-        examDate,
-        hoursPerDay,
-        todayStr,
-        expectedCount,
-      }),
-    });
 
-    const days = resolveRoadmapDays(object.days, examDate, hoursPerDay, todayStr);
+Each item needs:
+- day (1-based integer index)
+- date (YYYY-MM-DD between ${todayStr} and ${examDate})
+- topics (array of strings)
+- tasks (array of clear, actionable strings)
+- estimatedHours (number, <= ${hoursPerDay})
+- priority ("critical" | "high" | "medium")
+
+Return JSON matching this shape exactly:
+{
+  "days": [
+    {
+      "day": number,
+      "date": string,
+      "topics": string[],
+      "tasks": string[],
+      "estimatedHours": number,
+      "priority": "critical" | "high" | "medium"
+    }
+  ]
+}
+
+Inputs:
+${JSON.stringify({ summary, examDate, hoursPerDay, todayStr, expectedCount })}`;
+
+  try {
+    const { data } = await runCursorJson(buildPrompt(), roadmapResponseSchema);
+
+    const days = resolveRoadmapDays(data.days, examDate, hoursPerDay, todayStr);
 
     if (days.length === 0) {
       return NextResponse.json(
@@ -99,6 +112,7 @@ Each item needs: day (1-based index), date (YYYY-MM-DD between ${todayStr} and $
     return NextResponse.json({ days });
   } catch (error) {
     console.error("Roadmap generation failed, trying backup plan:", error);
+
     try {
       const backupTodayStr = new Date().toISOString().slice(0, 10);
       const today = new Date(backupTodayStr);
@@ -106,33 +120,33 @@ Each item needs: day (1-based index), date (YYYY-MM-DD between ${todayStr} and $
       const diffTime = exam.getTime() - today.getTime();
       const diffDaysBackup = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      let consolidationInstruction = "";
+      let consolidationInstruction: string;
       if (diffDaysBackup > 10) {
         consolidationInstruction = `The exam is ${diffDaysBackup} days away. Because this is a long duration, DO NOT generate an item for every single day to avoid token limits. Instead, consolidate the plan into a maximum of 10 key study checkpoints or phases spaced evenly across this period (e.g. Day 1, Day 5, Day 10, etc.), each representing a critical study milestone with its corresponding date.`;
       } else if (diffDaysBackup <= 0) {
-        consolidationInstruction = `The exam is today or in the past. Generate a highly compressed, last-minute cram roadmap of 1-3 critical study checkpoints for today.`;
+        consolidationInstruction =
+          "The exam is today or in the past. Generate a highly compressed, last-minute cram roadmap of 1-3 critical study checkpoints for today.";
       } else {
         consolidationInstruction = `The exam is ${diffDaysBackup} days away. Build a day-by-day study roadmap with one item for each day from today until the exam date.`;
       }
 
-      const { object } = await generateObject({
-        model: getLanguageModel(DEFAULT_CHAT_MODEL),
-        schema: roadmapResponseSchema,
-        temperature: 0.2,
-        system: `You are a professional study planner. Today is ${backupTodayStr}.
+      const backupPrompt = `You are a professional study planner. Today is ${backupTodayStr}.
 ${consolidationInstruction}
-Each roadmap item needs: day (the day number from start), date (YYYY-MM-DD), topics (1-3 key topics), specific time-blocked tasks (1-2 clear, actionable items), estimatedHours, and priority (critical|high|medium).
-Be highly concise in your descriptions to keep generation extremely fast and prevent truncation.`,
-        prompt: JSON.stringify({ summary, examDate, hoursPerDay, today: backupTodayStr }),
-      });
 
-      return NextResponse.json(object);
+Each roadmap item needs: day (the day number from start), date (YYYY-MM-DD), topics (1-3 key topics), specific time-blocked tasks (1-2 clear, actionable items), estimatedHours, and priority ("critical" | "high" | "medium").
+Be highly concise in your descriptions to keep generation extremely fast and prevent truncation.
+
+Return JSON matching: { "days": [...] }.
+
+Inputs:
+${JSON.stringify({ summary, examDate, hoursPerDay, today: backupTodayStr })}`;
+
+      const { data } = await runCursorJson(backupPrompt, roadmapResponseSchema);
+      return NextResponse.json(data);
     } catch (innerError) {
       console.error("Backup roadmap generation failed with error:", innerError);
-      return NextResponse.json(
-        { error: "Failed to generate roadmap" },
-        { status: 500 }
-      );
+      const { message, status } = describeCursorError(innerError);
+      return NextResponse.json({ error: message }, { status });
     }
   }
 }

@@ -1,6 +1,5 @@
-import { streamText } from "ai";
+import { streamCursorChat } from "@/lib/ai/cursor-agent";
 import { codePrompt, updateDocumentPrompt } from "@/lib/ai/prompts";
-import { getLanguageModel } from "@/lib/ai/providers";
 import { createDocumentHandler } from "@/lib/artifacts/server";
 
 function stripFences(code: string): string {
@@ -15,15 +14,13 @@ export const codeDocumentHandler = createDocumentHandler<"code">({
   onCreateDocument: async ({ title, dataStream, modelId }) => {
     let draftContent = "";
 
-    const { fullStream } = streamText({
-      model: getLanguageModel(modelId),
+    for await (const chunk of streamCursorChat({
       system: `${codePrompt}\n\nOutput ONLY the code. No explanations, no markdown fences, no wrapping.`,
-      prompt: title,
-    });
-
-    for await (const delta of fullStream) {
-      if (delta.type === "text-delta") {
-        draftContent += delta.text;
+      userMessage: title,
+      modelId,
+    })) {
+      if (chunk.type === "text-delta") {
+        draftContent += chunk.delta;
         dataStream.write({
           type: "data-codeDelta",
           data: stripFences(draftContent),
@@ -37,15 +34,13 @@ export const codeDocumentHandler = createDocumentHandler<"code">({
   onUpdateDocument: async ({ document, description, dataStream, modelId }) => {
     let draftContent = "";
 
-    const { fullStream } = streamText({
-      model: getLanguageModel(modelId),
+    for await (const chunk of streamCursorChat({
       system: `${updateDocumentPrompt(document.content, "code")}\n\nOutput ONLY the complete updated code. No explanations, no markdown fences, no wrapping.`,
-      prompt: description,
-    });
-
-    for await (const delta of fullStream) {
-      if (delta.type === "text-delta") {
-        draftContent += delta.text;
+      userMessage: description,
+      modelId,
+    })) {
+      if (chunk.type === "text-delta") {
+        draftContent += chunk.delta;
         dataStream.write({
           type: "data-codeDelta",
           data: stripFences(draftContent),

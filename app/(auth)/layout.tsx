@@ -35,7 +35,9 @@ export default function AuthLayout({
             AemroSprint
           </span>
           <span className="text-muted-foreground/30">·</span>
-          <span className="text-muted-foreground/60 font-medium">Your AI academic survival system</span>
+          <span className="text-muted-foreground/60 font-medium">
+            Your AI academic survival system
+          </span>
         </div>
         <div className="flex-1 pt-8">
           <Preview />

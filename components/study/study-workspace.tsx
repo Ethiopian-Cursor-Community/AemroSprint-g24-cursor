@@ -1,6 +1,13 @@
 "use client";
 
-import { BrainIcon, FileUpIcon, FlameIcon, ZapIcon, SparklesIcon, RefreshCwIcon } from "lucide-react";
+import {
+  BrainIcon,
+  FileUpIcon,
+  FlameIcon,
+  RefreshCwIcon,
+  SparklesIcon,
+  ZapIcon,
+} from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { EmergencyPanel } from "@/components/study/emergency-panel";
@@ -108,11 +115,11 @@ export function StudyWorkspace() {
         {/* Demo and Control triggers */}
         <div className="pt-2 flex flex-wrap justify-center items-center gap-2.5">
           <Button
+            className="text-xs font-semibold px-4 rounded-full border-primary/20 hover:border-primary/50 hover:bg-primary/5 flex items-center gap-1.5 cursor-pointer"
+            onClick={setFromDemo}
+            size="sm"
             type="button"
             variant="outline"
-            size="sm"
-            onClick={setFromDemo}
-            className="text-xs font-semibold px-4 rounded-full border-primary/20 hover:border-primary/50 hover:bg-primary/5 flex items-center gap-1.5 cursor-pointer"
           >
             <SparklesIcon className="size-3.5 text-primary" />
             <span>Try CS 301 Demo</span>
@@ -120,11 +127,11 @@ export function StudyWorkspace() {
 
           {(summary || roadmap.length > 0 || quiz.length > 0 || emergency) && (
             <Button
+              className="text-xs font-semibold px-4 rounded-full text-muted-foreground hover:text-foreground flex items-center gap-1.5 cursor-pointer"
+              onClick={resetStudy}
+              size="sm"
               type="button"
               variant="ghost"
-              size="sm"
-              onClick={resetStudy}
-              className="text-xs font-semibold px-4 rounded-full text-muted-foreground hover:text-foreground flex items-center gap-1.5 cursor-pointer"
             >
               <RefreshCwIcon className="size-3.5" />
               <span>Reset Dashboard</span>
@@ -195,7 +202,10 @@ export function StudyWorkspace() {
         </div>
 
         <div className="flex flex-col gap-2.5">
-          <Label className="text-sm font-medium pl-1 text-muted-foreground" htmlFor="syllabus-text">
+          <Label
+            className="text-sm font-medium pl-1 text-muted-foreground"
+            htmlFor="syllabus-text"
+          >
             Or paste syllabus text
           </Label>
           <Textarea
@@ -211,7 +221,10 @@ export function StudyWorkspace() {
       {/* Inputs and Controls */}
       <section className="flex flex-wrap items-end gap-4 p-6 rounded-2xl bg-secondary/20 border border-border/40 backdrop-blur-sm">
         <div className="flex flex-col gap-2 w-full md:w-auto">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" htmlFor="exam-date">
+          <Label
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            htmlFor="exam-date"
+          >
             Exam Date
           </Label>
           <Input
@@ -223,7 +236,10 @@ export function StudyWorkspace() {
           />
         </div>
         <div className="flex flex-col gap-2 w-full md:w-auto">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground" htmlFor="hours-per-day">
+          <Label
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            htmlFor="hours-per-day"
+          >
             Hours / Day
           </Label>
           <Input
@@ -256,13 +272,20 @@ export function StudyWorkspace() {
             type="button"
             variant="secondary"
           >
-            {loadingStep === "roadmap" ? "Generating Plan..." : "Generate Roadmap"}
+            {loadingStep === "roadmap"
+              ? "Generating Plan..."
+              : "Generate Roadmap"}
           </Button>
         </div>
       </section>
 
       {/* Main Content Outputs (Summary, Roadmap, and Panic) */}
-      {(summary || roadmap.length > 0 || emergency || loadingStep === "summary" || loadingStep === "roadmap" || loadingStep === "emergency") && (
+      {(summary ||
+        roadmap.length > 0 ||
+        emergency ||
+        loadingStep === "summary" ||
+        loadingStep === "roadmap" ||
+        loadingStep === "emergency") && (
         <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* Summary column */}
           <div className="space-y-3">

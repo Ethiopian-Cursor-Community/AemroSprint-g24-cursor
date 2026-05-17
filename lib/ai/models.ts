@@ -1,10 +1,10 @@
-export const DEFAULT_CHAT_MODEL = "cursor-fast";
+export const DEFAULT_CHAT_MODEL = "composer-2";
 
 export const titleModel = {
-  id: "cursor-fast",
-  name: "Cursor Fast",
+  id: "composer-2",
+  name: "Composer 2",
   provider: "cursor",
-  description: "Fast model for title generation",
+  description: "Cursor-hosted default model used for short generations",
 };
 
 export type ModelCapabilities = {
@@ -23,41 +23,34 @@ export type ChatModel = {
 
 export const chatModels: ChatModel[] = [
   {
-    id: "cursor-fast",
-    name: "Cursor Fast",
+    id: "composer-2",
+    name: "Cursor Composer 2",
     provider: "cursor",
-    description: "Extremely fast next-gen study model with massive context capacity",
+    description:
+      "Cursor's default agentic model — best balance of quality and latency for study help",
   },
   {
-    id: "cursor-medium",
-    name: "Cursor Medium",
+    id: "composer-2-fast",
+    name: "Cursor Composer 2 Fast",
     provider: "cursor",
-    description: "Balanced model optimized for deep analytical reasoning and structure",
+    description: "Faster, lower-latency Composer 2 variant for quick answers",
   },
   {
-    id: "cursor-large",
-    name: "Cursor Large",
+    id: "auto",
+    name: "Cursor Auto",
     provider: "cursor",
-    description: "State-of-the-art reasoning model for highly complex concepts and quizzes",
-  },
-  {
-    id: "cursor-preview",
-    name: "Cursor Preview",
-    provider: "cursor",
-    description: "Experimental cutting-edge preview model for testing new intelligence",
+    description: "Let Cursor pick the best available model for each request",
   },
 ];
 
-export async function getCapabilities(): Promise<
-  Record<string, ModelCapabilities>
-> {
+export function getCapabilities(): Record<string, ModelCapabilities> {
   return Object.fromEntries(
     chatModels.map((model) => [
       model.id,
       {
-        tools: true,
-        vision: true,
-        reasoning: model.id.includes("pro") || model.id.includes("3"),
+        tools: false,
+        vision: false,
+        reasoning: false,
       },
     ])
   );
@@ -69,10 +62,8 @@ export type GatewayModelWithCapabilities = ChatModel & {
   capabilities: ModelCapabilities;
 };
 
-export async function getAllGatewayModels(): Promise<
-  GatewayModelWithCapabilities[]
-> {
-  const capabilities = await getCapabilities();
+export function getAllGatewayModels(): GatewayModelWithCapabilities[] {
+  const capabilities = getCapabilities();
   return chatModels.map((m) => ({
     ...m,
     capabilities: capabilities[m.id],

@@ -4,9 +4,9 @@ import { BrainIcon, PanelLeftIcon } from "lucide-react";
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
-import { VisibilitySelector, type VisibilityType } from "./visibility-selector";
-import { useStudyContext } from "@/hooks/use-study-context";
 import { useActiveChat } from "@/hooks/use-active-chat";
+import { useStudyContext } from "@/hooks/use-study-context";
+import { VisibilitySelector, type VisibilityType } from "./visibility-selector";
 
 function PureChatHeader({
   chatId,

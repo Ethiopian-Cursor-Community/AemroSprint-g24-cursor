@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 import { applyPlaywrightTestEnv } from "./tests/playwright-env";
 
 /* Use process.env.PORT by default and fallback to port 3000 */
@@ -48,7 +48,7 @@ export default defineConfig({
       name: "e2e",
       testMatch: /e2e\/.*.test.ts/,
       use: {
-        ... devices["Desktop Chrome"],
+        ...devices["Desktop Chrome"],
       },
     },
 
@@ -84,14 +84,14 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  
+
   webServer: {
     command: "pnpm build && pnpm start",
     url: `${baseURL}/ping`,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
-    env: { 
-      ...process.env, 
+    env: {
+      ...process.env,
       ...playwrightEnv,
     },
   },

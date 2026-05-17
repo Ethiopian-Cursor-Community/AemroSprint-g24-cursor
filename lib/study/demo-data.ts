@@ -1,8 +1,8 @@
 import type {
-  SummaryJSON,
-  RoadmapDay,
-  QuizQuestion,
   EmergencyPlan,
+  QuizQuestion,
+  RoadmapDay,
+  SummaryJSON,
 } from "./types";
 
 export const DEMO_SUMMARY: SummaryJSON = {
@@ -120,28 +120,35 @@ export const DEMO_ROADMAP: RoadmapDay[] = [
 export const DEMO_QUIZ: QuizQuestion[] = [
   {
     id: "q1",
-    question: "What is the worst-case search time complexity in a standard unbalanced Binary Search Tree (BST)?",
+    question:
+      "What is the worst-case search time complexity in a standard unbalanced Binary Search Tree (BST)?",
     options: ["O(log n)", "O(n)", "O(n log n)", "O(1)"],
     correctIndex: 1,
-    explanation: "In the worst case, a Binary Search Tree can become skewed (like a linked list) if elements are inserted in sorted order. Search complexity in a skewed tree is O(n). Self-balancing trees like AVL or Red-Black trees prevent this to maintain O(log n).",
+    explanation:
+      "In the worst case, a Binary Search Tree can become skewed (like a linked list) if elements are inserted in sorted order. Search complexity in a skewed tree is O(n). Self-balancing trees like AVL or Red-Black trees prevent this to maintain O(log n).",
   },
   {
     id: "q2",
-    question: "Which data structure is internally used to implement Breadth-First Search (BFS) on a graph?",
+    question:
+      "Which data structure is internally used to implement Breadth-First Search (BFS) on a graph?",
     options: ["Stack", "Priority Queue", "Queue", "Heap"],
     correctIndex: 2,
-    explanation: "BFS explores nodes level-by-level. It uses a FIFO (First-In, First-Out) Queue to keep track of adjacent nodes that need to be visited next. A Stack is used for Depth-First Search (DFS).",
+    explanation:
+      "BFS explores nodes level-by-level. It uses a FIFO (First-In, First-Out) Queue to keep track of adjacent nodes that need to be visited next. A Stack is used for Depth-First Search (DFS).",
   },
   {
     id: "q3",
-    question: "In a Hash Table with chaining, what is the average-case time complexity of inserting an item?",
+    question:
+      "In a Hash Table with chaining, what is the average-case time complexity of inserting an item?",
     options: ["O(1)", "O(log n)", "O(n)", "O(n^2)"],
     correctIndex: 0,
-    explanation: "Inserting into a hash table with chaining takes O(1) constant time on average, assuming a good hash function that distributes elements uniformly across buckets. In the worst case (all keys hash to the same bucket), it is O(n).",
+    explanation:
+      "Inserting into a hash table with chaining takes O(1) constant time on average, assuming a good hash function that distributes elements uniformly across buckets. In the worst case (all keys hash to the same bucket), it is O(n).",
   },
   {
     id: "q4",
-    question: "What is the main advantage of an AVL tree over a standard Binary Search Tree?",
+    question:
+      "What is the main advantage of an AVL tree over a standard Binary Search Tree?",
     options: [
       "AVL trees use less memory",
       "AVL trees guarantee O(log n) time complexity for search, insert, and delete operations",
@@ -149,35 +156,57 @@ export const DEMO_QUIZ: QuizQuestion[] = [
       "AVL trees do not require pointers or nodes",
     ],
     correctIndex: 1,
-    explanation: "An AVL tree is a self-balancing binary search tree. It maintains a height balance factor of at most 1 between left and right subtrees. This balance guarantees that operations take O(log n) time, preventing the O(n) skewed-tree degradation.",
+    explanation:
+      "An AVL tree is a self-balancing binary search tree. It maintains a height balance factor of at most 1 between left and right subtrees. This balance guarantees that operations take O(log n) time, preventing the O(n) skewed-tree degradation.",
   },
   {
     id: "q5",
-    question: "Which algorithmic paradigm does Dijkstra's shortest path algorithm belong to?",
-    options: ["Greedy Method", "Dynamic Programming", "Divide and Conquer", "Backtracking"],
+    question:
+      "Which algorithmic paradigm does Dijkstra's shortest path algorithm belong to?",
+    options: [
+      "Greedy Method",
+      "Dynamic Programming",
+      "Divide and Conquer",
+      "Backtracking",
+    ],
     correctIndex: 0,
-    explanation: "Dijkstra's algorithm is a greedy algorithm. At each step, it selects the vertex with the minimum distance estimate from the source that has not yet been processed, making locally optimal decisions at every junction.",
+    explanation:
+      "Dijkstra's algorithm is a greedy algorithm. At each step, it selects the vertex with the minimum distance estimate from the source that has not yet been processed, making locally optimal decisions at every junction.",
   },
   {
     id: "q6",
-    question: "What is the space complexity of an adjacency matrix representation of a graph with V vertices?",
+    question:
+      "What is the space complexity of an adjacency matrix representation of a graph with V vertices?",
     options: ["O(V)", "O(V + E)", "O(V^2)", "O(E^2)"],
     correctIndex: 2,
-    explanation: "An adjacency matrix uses a V x V grid of booleans or integers. Regardless of the number of edges (E), it always allocates a 2D array of size V^2, leading to O(V^2) space complexity.",
+    explanation:
+      "An adjacency matrix uses a V x V grid of booleans or integers. Regardless of the number of edges (E), it always allocates a 2D array of size V^2, leading to O(V^2) space complexity.",
   },
   {
     id: "q7",
     question: "What recurrence relation matches the merge sort algorithm?",
-    options: ["T(n) = T(n-1) + O(n)", "T(n) = 2T(n/2) + O(n)", "T(n) = T(n/2) + O(1)", "T(n) = 2T(n/2) + O(1)"],
+    options: [
+      "T(n) = T(n-1) + O(n)",
+      "T(n) = 2T(n/2) + O(n)",
+      "T(n) = T(n/2) + O(1)",
+      "T(n) = 2T(n/2) + O(1)",
+    ],
     correctIndex: 1,
-    explanation: "Merge sort divides the array into two halves (2T(n/2)) and merges them in linear time (O(n)). The full recurrence relation is T(n) = 2T(n/2) + O(n), which solves to O(n log n) by the Master Theorem.",
+    explanation:
+      "Merge sort divides the array into two halves (2T(n/2)) and merges them in linear time (O(n)). The full recurrence relation is T(n) = 2T(n/2) + O(n), which solves to O(n log n) by the Master Theorem.",
   },
   {
     id: "q8",
     question: "Which of the following is NOT a dynamic programming problem?",
-    options: ["0/1 Knapsack", "Longest Common Subsequence", "Fibonacci Numbers calculation", "Dijkstra's Shortest Path"],
+    options: [
+      "0/1 Knapsack",
+      "Longest Common Subsequence",
+      "Fibonacci Numbers calculation",
+      "Dijkstra's Shortest Path",
+    ],
     correctIndex: 3,
-    explanation: "Dijkstra's algorithm uses a greedy approach. 0/1 Knapsack, LCS, and Fibonacci calculation exhibit overlapping subproblems and optimal substructure, making them classic dynamic programming candidates.",
+    explanation:
+      "Dijkstra's algorithm uses a greedy approach. 0/1 Knapsack, LCS, and Fibonacci calculation exhibit overlapping subproblems and optimal substructure, making them classic dynamic programming candidates.",
   },
   {
     id: "q9",
@@ -189,14 +218,22 @@ export const DEMO_QUIZ: QuizQuestion[] = [
       "Stacks hold integers, queues hold strings",
     ],
     correctIndex: 1,
-    explanation: "Stacks are Last-In, First-Out (LIFO) where operations occur only at the top. Queues are First-In, First-Out (FIFO) where additions occur at the rear and removals occur at the front.",
+    explanation:
+      "Stacks are Last-In, First-Out (LIFO) where operations occur only at the top. Queues are First-In, First-Out (FIFO) where additions occur at the rear and removals occur at the front.",
   },
   {
     id: "q10",
-    question: "Which collision resolution method in hashing requires pointers to linked nodes outside the primary table?",
-    options: ["Linear Probing", "Chaining", "Quadratic Probing", "Double Hashing"],
+    question:
+      "Which collision resolution method in hashing requires pointers to linked nodes outside the primary table?",
+    options: [
+      "Linear Probing",
+      "Chaining",
+      "Quadratic Probing",
+      "Double Hashing",
+    ],
     correctIndex: 1,
-    explanation: "Chaining (or separate chaining) resolves hash collisions by storing colliding elements in an external linked list or other collection at the hashed bucket index. The other methods use open addressing within the table itself.",
+    explanation:
+      "Chaining (or separate chaining) resolves hash collisions by storing colliding elements in an external linked list or other collection at the hashed bucket index. The other methods use open addressing within the table itself.",
   },
 ];
 
@@ -240,7 +277,8 @@ export const DEMO_EMERGENCY: EmergencyPlan = {
       why: "Requires filling a 2D grid. Know the formula: dp[i][w] = max(dp[i-1][w], val + dp[i-1][w-wt]).",
     },
   ],
-  mindsetTip: "Take a deep breath! You cannot memorize everything in 4 hours, but you CAN master the core 4 visual trace tasks that account for 60% of the midterm exam grade. Focus on tracing on paper, not syntax perfection!",
+  mindsetTip:
+    "Take a deep breath! You cannot memorize everything in 4 hours, but you CAN master the core 4 visual trace tasks that account for 60% of the midterm exam grade. Focus on tracing on paper, not syntax perfection!",
 };
 
 export const DEMO_EXTRACTED_TEXT = `

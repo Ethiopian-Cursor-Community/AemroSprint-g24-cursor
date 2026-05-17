@@ -36,7 +36,9 @@ export function QuizCard({
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-border/40 bg-card/50 p-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <p className="font-semibold text-sm leading-snug md:text-base">{question}</p>
+      <p className="font-semibold text-sm leading-snug md:text-base">
+        {question}
+      </p>
       <div className="grid gap-2">
         {options.map((option, index) => {
           const isCorrect = index === correctIndex;
@@ -74,7 +76,11 @@ export function QuizCard({
             {explanation}
           </p>
           {showNext && onNext ? (
-            <Button className="w-full rounded-xl" onClick={onNext} type="button">
+            <Button
+              className="w-full rounded-xl"
+              onClick={onNext}
+              type="button"
+            >
               Next question
             </Button>
           ) : null}

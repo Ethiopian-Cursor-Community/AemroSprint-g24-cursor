@@ -1,10 +1,10 @@
-import { generateObject } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/app/(auth)/auth";
-import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
-import { getLanguageModel } from "@/lib/ai/providers";
+import { describeCursorError, runCursorJson } from "@/lib/ai/cursor-agent";
 import { emergencyPlanSchema, summaryJsonSchema } from "@/lib/study/types";
+
+export const maxDuration = 60;
 
 const bodySchema = z.object({
   summary: summaryJsonSchema,
@@ -34,38 +34,49 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.CURSOR_API_KEY?.trim()) {
+  let body: z.infer<typeof bodySchema>;
+  try {
+    body = bodySchema.parse(await request.json());
+  } catch {
     return NextResponse.json(
-      { error: "CURSOR_API_KEY is not configured" },
-      { status: 500 }
+      { error: "Invalid request body" },
+      { status: 400 }
     );
   }
 
-  try {
-    const json = await request.json();
-    const { summary, hoursRemaining } = bodySchema.parse(json);
+  const { summary, hoursRemaining } = body;
+  const totalMinutes = hoursRemaining * 60;
 
-    const { object } = await generateObject({
-      model: getLanguageModel(DEFAULT_CHAT_MODEL),
-      schema: emergencyPlanLooseSchema,
-      temperature: 0.2,
-      system: `You are a crisis academic coach. The student has ${hoursRemaining} hour(s) until their exam.
-Be brutally prioritized — no fluff. Return priorityTopics, mustKnowFacts, skipThese, studyOrder (topic, minutes as number, why), and mindsetTip.
-studyOrder minutes should sum to roughly ${hoursRemaining * 60} or less.`,
-      prompt: JSON.stringify(summary),
-    });
+  const prompt = `You are a crisis academic coach. The student has ${hoursRemaining} hour(s) until their exam.
+
+Be brutally prioritized — no fluff. Return priorityTopics, mustKnowFacts, skipThese, studyOrder (array of { topic, minutes (number), why }), and mindsetTip. studyOrder minutes should sum to roughly ${totalMinutes} or less.
+
+Return JSON matching this shape exactly:
+{
+  "priorityTopics": string[],
+  "mustKnowFacts": string[],
+  "skipThese": string[],
+  "studyOrder": { "topic": string, "minutes": number, "why": string }[],
+  "mindsetTip": string
+}
+
+Course summary:
+${JSON.stringify(summary)}`;
+
+  try {
+    const { data } = await runCursorJson(prompt, emergencyPlanLooseSchema);
 
     const parsed = emergencyPlanSchema.safeParse({
-      priorityTopics: object.priorityTopics.length
-        ? object.priorityTopics
+      priorityTopics: data.priorityTopics.length
+        ? data.priorityTopics
         : summary.topics.slice(0, 3),
-      mustKnowFacts: object.mustKnowFacts.length
-        ? object.mustKnowFacts
+      mustKnowFacts: data.mustKnowFacts.length
+        ? data.mustKnowFacts
         : summary.learningObjectives.slice(0, 3),
-      skipThese: object.skipThese ?? [],
-      studyOrder: object.studyOrder ?? [],
+      skipThese: data.skipThese ?? [],
+      studyOrder: data.studyOrder ?? [],
       mindsetTip:
-        object.mindsetTip ??
+        data.mindsetTip ??
         "Focus on high-yield topics first — perfect is the enemy of done.",
     });
 
@@ -80,9 +91,7 @@ studyOrder minutes should sum to roughly ${hoursRemaining * 60} or less.`,
     return NextResponse.json(parsed.data);
   } catch (error) {
     console.error("Emergency plan generation failed:", error);
-    return NextResponse.json(
-      { error: "Failed to generate emergency plan" },
-      { status: 500 }
-    );
+    const { message, status } = describeCursorError(error);
+    return NextResponse.json({ error: message }, { status });
   }
 }

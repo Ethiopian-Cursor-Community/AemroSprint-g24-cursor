@@ -33,9 +33,9 @@ test.describe("Model Selector", () => {
     await modelButton.click();
 
     const searchInput = page.getByPlaceholder("Search models...");
-    await searchInput.fill("Cursor Large");
+    await searchInput.fill("Composer 2 Fast");
 
-    await expect(page.getByText("Cursor Large").first()).toBeVisible();
+    await expect(page.getByText("Composer 2 Fast").first()).toBeVisible();
   });
 
   test("can close model selector by clicking outside", async ({ page }) => {
@@ -59,8 +59,12 @@ test.describe("Model Selector", () => {
       .first();
     await modelButton.click();
 
-    await expect(page.getByRole("option", { name: /Cursor Fast/i }).first()).toBeVisible();
-    await expect(page.getByRole("option", { name: /Cursor Large/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole("option", { name: /Cursor Composer 2/i }).first()
+    ).toBeVisible();
+    await expect(
+      page.getByRole("option", { name: /Cursor Auto/i }).first()
+    ).toBeVisible();
   });
 
   test("can select a different model", async ({ page }) => {
@@ -70,12 +74,15 @@ test.describe("Model Selector", () => {
       .first();
     await modelButton.click();
 
-    await page.getByText("Cursor Large").first().click();
+    await page.getByText("Cursor Composer 2 Fast").first().click();
 
     await expect(page.getByPlaceholder("Search models...")).not.toBeVisible();
 
     await expect(
-      page.locator("button").filter({ hasText: "Cursor Large" }).first()
+      page
+        .locator("button")
+        .filter({ hasText: "Cursor Composer 2 Fast" })
+        .first()
     ).toBeVisible();
   });
 });
