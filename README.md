@@ -4,14 +4,14 @@
 
 ---
 
-**[Live Demo] ([https://aemro-sprint.vercel.app/])**
+**[Live Demo] ([https://aemro-sprint-g24-cursor.vercel.app/])**
 
 ## 🌟 Key Features
 
 - **📂 Multi-Format Material Parser:** Drag and drop syllabus PDFs, paste raw course outlines, or upload lecture notes (supporting PDF and text files up to 5MB).
-- **📝 Intelligent Study Summaries:** Automatically extracts core learning objectives, key topics, major milestones, and important dates using Gemini structured generation.
+- **📝 Intelligent Study Summaries:** Automatically extracts core learning objectives, key topics, major milestones, and important dates using Cursor SDK structured generation.
 - **📅 Custom Study Roadmaps:** Generates a structured, day-by-day calendar countdown leading up to your exam, customized by your daily hour commitment.
-- **💬 Material-Grounded Study Chat:** (Integration in progress) A conversation panel powered by Gemini where you can ask follow-up questions directly grounded in your uploaded study material.
+- **💬 Material-Grounded Study Chat:** (Integration in progress) A conversation panel powered by Cursor SDK where you can ask follow-up questions directly grounded in your uploaded study material.
 - **🚨 Emergency Panic Cram Mode:** (Integration in progress) A high-intensity mode designed to maximize study efficiency during the final 24-48 hours before an exam.
 
 ---
@@ -43,11 +43,11 @@ We created the academic **"AemroSprint"** product layer on top of the generic ch
 
 - **Framework:** [Next.js 16 (App Router)](https://nextjs.org/) + [React 19](https://react.dev/)
 - **AI Integration:** [Vercel AI SDK Core](https://sdk.vercel.ai/docs) (`generateObject` for strict structured output and `streamObject` for fluid UI rendering)
-- **AI Model Provider:** [Google Generative AI](https://github.com/vercel/ai/tree/main/packages/google) leveraging Gemini family models:
-  - `gemini-2.5-flash` (Primary fast model for general study interaction)
-  - `gemini-2.5-pro` (For deep analytical reasoning and logical breakdown)
-  - `gemini-2.0-flash` (For real-time responses)
-  - `gemini-3-flash-preview` (Experimental cutting-edge preview model)
+- **AI Model Provider:** [Cursor SDK](https://cursor.sh/) leveraging Cursor family models:
+  - `cursor-fast` (Primary fast model for general study interaction)
+  - `cursor-medium` (Balanced model optimized for deep reasoning and timeline roadmaps)
+  - `cursor-large` (State-of-the-art model for complex concept checks and quizzing)
+  - `cursor-preview` (Experimental cutting-edge preview model)
 - **Database & ORM:** [Drizzle ORM](https://orm.drizzle.team/) + [PostgreSQL](https://www.postgresql.org/) (Neon / Serverless Postgres)
 - **Authentication:** [Auth.js v5 Beta (NextAuth)](https://authjs.dev/) supporting guest credentials and email login.
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) with PostCSS & CSS Variables for fluid modern aesthetics.
@@ -67,7 +67,7 @@ Before starting, ensure you have the following installed:
 - **Node.js** (v18.x or higher)
 - **pnpm** (v10.x recommended, or npm/yarn)
 - A running **PostgreSQL database** (local or serverless Neon instance)
-- A **Google Gemini API Key** (available for free in the Google AI Studio)
+- A **Cursor API Key** (available from your Cursor developer dashboard)
 
 ---
 
@@ -98,8 +98,8 @@ Open `.env.local` in your text editor and fill in the necessary variables:
 # Generate one using: openssl rand -base64 32
 AUTH_SECRET=your_auth_secret_here
 
-# Your Gemini API Key from Google AI Studio
-GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key_here
+# Your Cursor SDK API Key
+CURSOR_API_KEY=your_cursor_api_key_here
 
 # PostgreSQL connection string (Neon or local PostgreSQL instance)
 # Example: postgresql://username:password@localhost:5432/aemrosprint

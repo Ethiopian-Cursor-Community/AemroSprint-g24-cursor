@@ -700,7 +700,7 @@ function PureModelSelectorCompact({
             });
 
             const providerNames: Record<string, string> = {
-              google: "Google",
+              cursor: "Cursor",
             };
 
             return sortedKeys.map((key) => (
