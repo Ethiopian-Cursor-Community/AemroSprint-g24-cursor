@@ -57,7 +57,8 @@ export async function POST(request: Request) {
       model: getLanguageModel(DEFAULT_CHAT_MODEL),
       schema: quizResponseSchema,
       temperature: 0.3,
-      system: `You are an academic quiz author. Create 5–10 multiple-choice questions from the study material.
+      system:
+        `You are an academic quiz author. Create 5–10 multiple-choice questions from the study material.
 Each question must include: question text, options (array of exactly 4 strings), correctIndex (0-3), explanation, and id (q1, q2, ...).
 ${focus}`.trim(),
       prompt: trimmed,

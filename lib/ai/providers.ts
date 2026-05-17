@@ -1,5 +1,5 @@
-import { customProvider } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { customProvider } from "ai";
 import { isTestEnvironment } from "../constants";
 import { titleModel } from "./models";
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RoadmapDay } from "@/lib/study/types";
 
@@ -66,29 +66,46 @@ export function RoadmapView({ days, isLoading }: RoadmapViewProps) {
             <div className="mb-3 flex items-start justify-between gap-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm tracking-tight">Day {day.day}</span>
+                  <span className="font-bold text-sm tracking-tight">
+                    Day {day.day}
+                  </span>
                   {isToday ? (
-                    <Badge className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0 rounded-md" variant="default">
+                    <Badge
+                      className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0 rounded-md"
+                      variant="default"
+                    >
                       TODAY
                     </Badge>
                   ) : null}
                 </div>
-                <p className="text-muted-foreground/60 font-mono text-[11px] mt-0.5">{day.date}</p>
+                <p className="text-muted-foreground/60 font-mono text-[11px] mt-0.5">
+                  {day.date}
+                </p>
               </div>
-              <Badge variant="secondary" className="bg-background/50 border-border/5 text-[11px] font-bold px-2 py-0.5">
+              <Badge
+                className="bg-background/50 border-border/5 text-[11px] font-bold px-2 py-0.5"
+                variant="secondary"
+              >
                 {day.estimatedHours}h
               </Badge>
             </div>
             <div className="mb-3 flex flex-wrap gap-1.5">
               {day.topics.map((topic) => (
-                <Badge key={topic} variant="outline" className="text-[10px] font-medium border-primary/20 bg-primary/5 text-primary/70 rounded-lg">
+                <Badge
+                  className="text-[10px] font-medium border-primary/20 bg-primary/5 text-primary/70 rounded-lg"
+                  key={topic}
+                  variant="outline"
+                >
                   {topic}
                 </Badge>
               ))}
             </div>
             <ul className="space-y-2">
               {day.tasks.map((task) => (
-                <li key={task} className="flex gap-2.5 text-[13px] text-muted-foreground/80 leading-snug">
+                <li
+                  className="flex gap-2.5 text-[13px] text-muted-foreground/80 leading-snug"
+                  key={task}
+                >
                   <div className="mt-1.5 size-1.5 shrink-0 rounded-full bg-border/40 group-hover:bg-primary/40 transition-colors" />
                   <span>{task}</span>
                 </li>
@@ -100,4 +117,3 @@ export function RoadmapView({ days, isLoading }: RoadmapViewProps) {
     </div>
   );
 }
-

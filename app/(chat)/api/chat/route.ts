@@ -67,8 +67,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { id, message, messages, selectedChatModel, selectedVisibilityType, studyContext } =
-      requestBody;
+    const {
+      id,
+      message,
+      messages,
+      selectedChatModel,
+      selectedVisibilityType,
+      studyContext,
+    } = requestBody;
 
     const [, session] = await Promise.all([
       checkBotId().catch(() => null),
@@ -180,7 +186,7 @@ export async function POST(request: Request) {
     }
 
     const modelConfig = chatModels.find((m) => m.id === chatModel);
-    const modelCapabilities = await getCapabilities();
+    const modelCapabilities = getCapabilities();
     const capabilities = modelCapabilities[chatModel];
     const isReasoningModel = capabilities?.reasoning === true;
     const supportsTools = capabilities?.tools === true;
@@ -281,7 +287,7 @@ export async function POST(request: Request) {
           });
         }
       },
-      onError: (error) => {
+      onError: (_error) => {
         return "Oops, an error occurred!";
       },
     });
@@ -313,7 +319,6 @@ export async function POST(request: Request) {
     if (error instanceof ChatbotError) {
       return error.toResponse();
     }
-
 
     console.error("Unhandled error in chat API:", error, { vercelId });
     return new ChatbotError("offline:chat").toResponse();

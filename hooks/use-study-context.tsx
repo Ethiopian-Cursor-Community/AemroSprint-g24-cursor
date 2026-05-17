@@ -5,24 +5,24 @@ import {
   type ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
-  useEffect,
 } from "react";
 import { toast } from "sonner";
+import {
+  DEMO_EMERGENCY,
+  DEMO_EXTRACTED_TEXT,
+  DEMO_QUIZ,
+  DEMO_ROADMAP,
+  DEMO_SUMMARY,
+} from "@/lib/study/demo-data";
 import type {
   EmergencyPlan,
   QuizQuestion,
   RoadmapDay,
   SummaryJSON,
 } from "@/lib/study/types";
-import {
-  DEMO_SUMMARY,
-  DEMO_ROADMAP,
-  DEMO_QUIZ,
-  DEMO_EMERGENCY,
-  DEMO_EXTRACTED_TEXT,
-} from "@/lib/study/demo-data";
 
 export type StudyLoadingStep =
   | "idle"
@@ -82,19 +82,39 @@ export function StudyProvider({ children }: { children: ReactNode }) {
       const stored = sessionStorage.getItem("second-brain-study");
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed.extractedText) setExtractedText(parsed.extractedText);
-        if (parsed.fileName) setFileName(parsed.fileName);
-        if (parsed.pastedText) setPastedText(parsed.pastedText);
-        if (parsed.summary) setSummary(parsed.summary);
-        if (parsed.roadmap) setRoadmap(parsed.roadmap);
-        if (parsed.quiz) setQuiz(parsed.quiz);
-        if (parsed.emergency) setEmergency(parsed.emergency);
-        if (parsed.examDate) setExamDate(parsed.examDate);
-        if (parsed.hoursPerDay) setHoursPerDay(parsed.hoursPerDay);
-        if (parsed.isDemo !== undefined) setIsDemo(parsed.isDemo);
+        if (parsed.extractedText) {
+          setExtractedText(parsed.extractedText);
+        }
+        if (parsed.fileName) {
+          setFileName(parsed.fileName);
+        }
+        if (parsed.pastedText) {
+          setPastedText(parsed.pastedText);
+        }
+        if (parsed.summary) {
+          setSummary(parsed.summary);
+        }
+        if (parsed.roadmap) {
+          setRoadmap(parsed.roadmap);
+        }
+        if (parsed.quiz) {
+          setQuiz(parsed.quiz);
+        }
+        if (parsed.emergency) {
+          setEmergency(parsed.emergency);
+        }
+        if (parsed.examDate) {
+          setExamDate(parsed.examDate);
+        }
+        if (parsed.hoursPerDay) {
+          setHoursPerDay(parsed.hoursPerDay);
+        }
+        if (parsed.isDemo !== undefined) {
+          setIsDemo(parsed.isDemo);
+        }
       }
-    } catch (e) {
-      console.error("Failed to load study session from sessionStorage", e);
+    } catch (_e) {
+      // Ignore corrupt sessionStorage payloads
     }
   }, []);
 
@@ -114,7 +134,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
         isDemo,
       };
       sessionStorage.setItem("second-brain-study", JSON.stringify(stateToSave));
-    } catch (e) {
+    } catch (_e) {
       // Ignore storage errors (e.g. quota exceeded)
     }
   }, [
@@ -144,7 +164,9 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     setLoadingStep("idle");
     try {
       sessionStorage.removeItem("second-brain-study");
-    } catch (_) {}
+    } catch (_e) {
+      // Ignore storage errors
+    }
   }, []);
 
   const setFromDemo = useCallback(() => {
@@ -330,9 +352,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
           const err = (await res.json().catch(() => ({}))) as {
             error?: string;
           };
-          throw new Error(
-            err.error ?? `Emergency plan failed (${res.status})`
-          );
+          throw new Error(err.error ?? `Emergency plan failed (${res.status})`);
         }
 
         const data = (await res.json()) as EmergencyPlan;

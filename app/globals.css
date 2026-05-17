@@ -50,11 +50,11 @@
   --radius: 0.85rem;
   --background: oklch(0.12 0.03 285); /* Deep Midnight Amethyst */
   --foreground: oklch(0.98 0.01 285); /* Cool Amethyst White */
-  --card: oklch(0.15 0.04 285);       /* Indigo-slate card back */
+  --card: oklch(0.15 0.04 285); /* Indigo-slate card back */
   --card-foreground: oklch(0.98 0.01 285);
   --popover: oklch(0.14 0.04 285);
   --popover-foreground: oklch(0.98 0.01 285);
-  --primary: oklch(0.68 0.18 285);     /* Sleek Amethyst Violet */
+  --primary: oklch(0.68 0.18 285); /* Sleek Amethyst Violet */
   --primary-foreground: oklch(0.99 0.005 285);
   --secondary: oklch(0.19 0.05 285);
   --secondary-foreground: oklch(0.92 0.02 285);
@@ -71,7 +71,7 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.10 0.035 285);
+  --sidebar: oklch(0.1 0.035 285);
   --sidebar-foreground: oklch(0.82 0.02 285);
   --sidebar-primary: oklch(0.68 0.18 285);
   --sidebar-primary-foreground: oklch(0.99 0.005 285);
@@ -97,11 +97,11 @@
 .dark {
   --background: oklch(0.07 0.025 285); /* Deepest Space Black */
   --foreground: oklch(0.96 0.01 285);
-  --card: oklch(0.10 0.035 285);        /* Sleekest glass card surface */
+  --card: oklch(0.1 0.035 285); /* Sleekest glass card surface */
   --card-foreground: oklch(0.96 0.01 285);
   --popover: oklch(0.09 0.035 285);
   --popover-foreground: oklch(0.96 0.01 285);
-  --primary: oklch(0.72 0.19 285);      /* Highly luminous glowing primary */
+  --primary: oklch(0.72 0.19 285); /* Highly luminous glowing primary */
   --primary-foreground: oklch(0.08 0.04 285);
   --secondary: oklch(0.14 0.045 285);
   --secondary-foreground: oklch(0.88 0.02 285);
