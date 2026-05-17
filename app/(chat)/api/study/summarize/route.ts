@@ -17,6 +17,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim()) {
+    return NextResponse.json(
+      { error: "GOOGLE_GENERATIVE_AI_API_KEY is not configured" },
+      { status: 500 }
+    );
+  }
+
   try {
     const json = await request.json();
     const { text } = bodySchema.parse(json);
@@ -33,6 +40,7 @@ Be specific and practical. Use ISO dates (YYYY-MM-DD) when possible.`,
 
     return NextResponse.json(object);
   } catch (error) {
+    console.error("Summary extraction failed:", error);
     console.error("Summary extraction failed with error:", error);
     return NextResponse.json(
       { error: "Failed to generate summary" },

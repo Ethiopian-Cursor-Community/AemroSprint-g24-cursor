@@ -1,6 +1,9 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { withBotId } from "botid/next/config";
 import type { NextConfig } from "next";
 
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 const basePath = process.env.IS_DEMO === "1" ? "/demo" : "";
 
 const nextConfig: NextConfig = {
@@ -43,6 +46,9 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ["pdf-parse"],
+  turbopack: {
+    root: projectRoot,
+  },
   experimental: {
     prefetchInlining: true,
     cachedNavigations: true,
