@@ -4,6 +4,8 @@
 
 ---
 
+**[Live Demo]([https://aemro-sprint.vercel.app/])**
+
 ## 🌟 Key Features
 
 - **📂 Multi-Format Material Parser:** Drag and drop syllabus PDFs, paste raw course outlines, or upload lecture notes (supporting PDF and text files up to 5MB).
