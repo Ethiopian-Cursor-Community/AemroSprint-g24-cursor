@@ -53,6 +53,9 @@ const THEME_COLOR_SCRIPT = `\
 
 const DIAGNOSTIC_SCRIPT = `\
 window.addEventListener('error', function(e) {
+  if (e.message && e.message.includes('Minified React error #418')) return;
+  if (e.message && e.message.includes('Minified React error #423')) return;
+  if (e.message && e.message.includes('Minified React error #425')) return;
   var overlay = document.getElementById('error-diagnostic-overlay');
   if (overlay) {
     overlay.style.display = 'block';
