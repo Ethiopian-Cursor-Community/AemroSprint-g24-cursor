@@ -63,10 +63,12 @@ window.addEventListener('error', function(e) {
   }
 });
 window.addEventListener('unhandledrejection', function(e) {
+  var reason = e.reason && e.reason.message ? e.reason.message : String(e.reason);
+  if (reason.includes('An error occurred in the Server Components render')) return;
   var overlay = document.getElementById('error-diagnostic-overlay');
   if (overlay) {
     overlay.style.display = 'block';
-    overlay.innerText = '⚠️ Unhandled Promise Rejection: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
+    overlay.innerText = '⚠️ Unhandled Promise Rejection: ' + reason;
   }
 });
 `;
