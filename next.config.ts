@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ["pdf-parse", "@cursor/sdk"],
-  allowedDevOrigins: ["127.0.0.1", "localhost", "172.20.10.2", "172.20.10.2:3000"],
+  allowedDevOrigins: ["localhost", "172.20.10.2", "172.20.10.2:3000"],
   turbopack: {
     root: projectRoot,
   },
